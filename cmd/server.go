@@ -16,7 +16,7 @@ var serverCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config := newConfig(
+		config, err := newConfig(
 			viper.GetString("base-url"),
 			viper.GetString("api-key"),
 			viper.GetString("project-name"),
@@ -24,6 +24,9 @@ var serverCmd = &cobra.Command{
 			viper.GetStringSlice("project-tags"),
 			viper.GetInt("timeout"),
 		)
+		if err != nil {
+			return err
+		}
 
 		return server(config, viper.GetInt("port"))
 	},

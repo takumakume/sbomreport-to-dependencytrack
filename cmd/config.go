@@ -2,24 +2,27 @@ package cmd
 
 import (
 	"time"
+
+	"github.com/takumakume/sbomreport-to-dependencytrack/dependencytrack"
 )
 
 type config struct {
-	baseURL        string
-	apiKey         string
+	dtrack         *dependencytrack.DependencyTrack
 	projectName    string
 	projectVersion string
 	projectTags    []string
-	timeout        time.Duration
 }
 
-func newConfig(baseURL, apiKey, projectName, projectVersion string, projectTags []string, timeout int) *config {
+func newConfig(baseURL, apiKey, projectName, projectVersion string, projectTags []string, timeout int) (*config, error) {
+	dtrack, err := dependencytrack.New(baseURL, apiKey, time.Duration(timeout)*time.Second)
+	if err != nil {
+		return nil, err
+	}
+
 	return &config{
-		baseURL:        baseURL,
-		apiKey:         apiKey,
+		dtrack:         dtrack,
 		projectName:    projectName,
 		projectVersion: projectVersion,
 		projectTags:    projectTags,
-		timeout:        time.Duration(timeout) * time.Second,
-	}
+	}, nil
 }

@@ -11,7 +11,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/takumakume/sbomreport-to-dependencytrack/dependencytrack"
 )
 
 var rootCmd = &cobra.Command{
@@ -19,7 +18,7 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config := newConfig(
+		config, err := newConfig(
 			viper.GetString("base-url"),
 			viper.GetString("api-key"),
 			viper.GetString("project-name"),
@@ -27,6 +26,9 @@ var rootCmd = &cobra.Command{
 			viper.GetStringSlice("project-tags"),
 			viper.GetInt("timeout"),
 		)
+		if err != nil {
+			return err
+		}
 
 		sbomReportJSON, err := io.ReadAll(os.Stdin)
 		if err != nil {
@@ -94,23 +96,18 @@ func upload(c *config, sbomReportJSON []byte) error {
 		projectTags = append(projectTags, tag)
 	}
 
-	dtrackClient, err := dependencytrack.New(c.baseURL, c.apiKey, c.timeout)
-	if err != nil {
-		return err
-	}
-
 	bom, err := getBOM(sbomReportJSON)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
-	if err := dtrackClient.UploadBOM(ctx, projectName, projectVersion, bom); err != nil {
+	if err := c.dtrack.UploadBOM(ctx, projectName, projectVersion, bom); err != nil {
 		return err
 	}
 
 	if len(c.projectTags) > 0 {
-		if err := dtrackClient.AddTagsToProject(ctx, projectName, projectVersion, projectTags); err != nil {
+		if err := c.dtrack.AddTagsToProject(ctx, projectName, projectVersion, projectTags); err != nil {
 			return err
 		}
 	}
