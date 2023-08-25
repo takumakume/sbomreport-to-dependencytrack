@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/takumakume/sbomreport-to-dependencytrack/uploader"
@@ -28,13 +30,18 @@ func (s *Server) Run() error {
 	ctx := context.Background()
 	http.HandleFunc("/", uploadFunc(ctx, s.uploader))
 	http.HandleFunc("/healthz", healthzFunc())
+
+	addr := fmt.Sprintf(":%d", s.port)
+	log.Printf("Listening on %s\n", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		return err
+	}
 	return nil
 }
 
 func healthzFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -58,6 +65,5 @@ func uploadFunc(ctx context.Context, u uploader.Uploader) http.HandlerFunc {
 			return
 		}
 		w.Write([]byte("ok"))
-		w.WriteHeader(http.StatusOK)
 	}
 }

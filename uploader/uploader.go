@@ -29,6 +29,7 @@ func New(c *config.Config) (*Upload, error) {
 
 	return &Upload{
 		dtrack: dtrack,
+		config: c,
 	}, nil
 }
 

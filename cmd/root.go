@@ -53,8 +53,8 @@ func init() {
 
 	flags.StringP("base-url", "u", "http://lolcalhost:8081/", "Dependency Track base URL (env: DT_BASE_URL)")
 	flags.StringP("api-key", "k", "", "Dependency Track API key (env: DT_API_KEY)")
-	flags.StringP("project-name", "", "[[.input.report.artifact.repository]]", "Project name template (env: DT_PROJECT_NAME)")
-	flags.StringP("project-version", "", "[[.input.report.artifact.tag]]", "Dependency Track API key (env: DT_PROJECT_VERSION)")
+	flags.StringP("project-name", "", "[[.sbomReport.report.artifact.repository]]", "Project name template (env: DT_PROJECT_NAME)")
+	flags.StringP("project-version", "", "[[.sbomReport.report.artifact.tag]]", "Dependency Track API key (env: DT_PROJECT_VERSION)")
 	flags.StringSliceP("project-tags", "t", []string{}, "Dependency Track project tags template (env: DT_PROJECT_TAGS comma separated)")
 	flags.IntP("timeout", "", 10, "Dependency Track timeout seconds (env: DT_TIMEOUT)")
 
