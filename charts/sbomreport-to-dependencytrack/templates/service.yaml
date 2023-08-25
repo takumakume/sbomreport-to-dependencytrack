@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sbomreport-to-dependencytrack.fullname" . }}
+  labels:
+    {{- include "sbomreport-to-dependencytrack.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sbomreport-to-dependencytrack.selectorLabels" . | nindent 4 }}

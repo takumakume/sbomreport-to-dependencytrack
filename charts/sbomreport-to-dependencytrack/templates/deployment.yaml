@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sbomreport-to-dependencytrack.fullname" . }}
+  labels:
+    {{- include "sbomreport-to-dependencytrack.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sbomreport-to-dependencytrack.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "sbomreport-to-dependencytrack.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: sbomreport-to-dependencytrack
+          args: ["server", "--port", "{{ .Values.service.port }}"]
+          env:
+            - name: DT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: {{ .Values.config.apiKeySecretName }}
+            - name: DT_BASE_URL
+              value: {{ .Values.config.baseUrl | quote }}
+            - name: DT_PROJECT_NAME
+              value: {{ .Values.config.projectName | quote }}
+            - name: DT_PROJECT_VERSION
+              value: {{ .Values.config.projectVersion | quote }}
+            - name: DT_PROJECT_TAGS
+              value: {{ .Values.config.projectTags | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
