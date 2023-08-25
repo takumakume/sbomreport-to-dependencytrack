@@ -18,4 +18,5 @@ jobs:
     - uses: actions/setup-go@v3
       with:
         go-version: ${{ env.go-version }}
+    - run: make go-deps
     - run: make test
