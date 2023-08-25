@@ -12,8 +12,8 @@ import (
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "",
-	Long:  ``,
+	Short: "A server that receives webhooks from trivy-operator and sends SBOM Reports to Dependency Track",
+	Long:  `A server that receives webhooks from trivy-operator and sends SBOM Reports to Dependency Track`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c := config.New(
 			viper.GetString("base-url"),
