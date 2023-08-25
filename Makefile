@@ -15,5 +15,10 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
+.PHONY: test
 test: mock fmt vet ## Run tests.
 	go test -v ./...
+
+.PHONY: helm
+helm:
+	cd charts && helm package ../helm/sbomreport-to-dependencytrack && helm repo index .
