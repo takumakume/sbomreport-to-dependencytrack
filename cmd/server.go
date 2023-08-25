@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"fmt"
-	"io"
-	"log"
-	"net/http"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/takumakume/sbomreport-to-dependencytrack/config"
+	"github.com/takumakume/sbomreport-to-dependencytrack/server"
+	"github.com/takumakume/sbomreport-to-dependencytrack/uploader"
 )
 
 var serverCmd = &cobra.Command{
@@ -16,19 +15,25 @@ var serverCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config, err := newConfig(
+		c := config.New(
 			viper.GetString("base-url"),
 			viper.GetString("api-key"),
 			viper.GetString("project-name"),
 			viper.GetString("project-version"),
 			viper.GetStringSlice("project-tags"),
-			viper.GetInt("timeout"),
 		)
+		if err := c.Validate(); err != nil {
+			return err
+		}
+
+		u, err := uploader.New(c)
 		if err != nil {
 			return err
 		}
 
-		return server(config, viper.GetInt("port"))
+		s := server.New(u, viper.GetInt("port"))
+
+		return s.Run()
 	},
 }
 
@@ -40,42 +45,4 @@ func init() {
 	viper.BindPFlag("port", flags.Lookup("port"))
 
 	rootCmd.AddCommand(serverCmd)
-}
-
-func server(c *config, port int) error {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			http.ResponseWriter.Write(w, []byte(`healthy`))
-			return
-		case "POST":
-			body, err := io.ReadAll(r.Body)
-			if err != nil {
-				log.Println(err)
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			if err := upload(c, body); err != nil {
-				log.Println(err)
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-
-			http.ResponseWriter.Write(w, []byte(`ok`))
-			return
-		default:
-			log.Println("Invalid request method")
-			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-			return
-		}
-	})
-
-	addr := fmt.Sprintf(":%d", port)
-	log.Printf("Listening on %s\n", addr)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

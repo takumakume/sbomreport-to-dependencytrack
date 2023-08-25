@@ -2,15 +2,14 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/takumakume/sbomreport-to-dependencytrack/config"
+	"github.com/takumakume/sbomreport-to-dependencytrack/uploader"
 )
 
 var rootCmd = &cobra.Command{
@@ -18,28 +17,30 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config, err := newConfig(
+		ctx := context.Background()
+
+		c := config.New(
 			viper.GetString("base-url"),
 			viper.GetString("api-key"),
 			viper.GetString("project-name"),
 			viper.GetString("project-version"),
 			viper.GetStringSlice("project-tags"),
-			viper.GetInt("timeout"),
 		)
+		if err := c.Validate(); err != nil {
+			return err
+		}
+
+		u, err := uploader.New(c)
 		if err != nil {
 			return err
 		}
 
-		sbomReportJSON, err := io.ReadAll(os.Stdin)
+		input, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return err
 		}
 
-		if err := upload(config, sbomReportJSON); err != nil {
-			return err
-		}
-
-		return nil
+		return u.Run(ctx, input)
 	},
 }
 
@@ -70,82 +71,4 @@ func Execute() error {
 	rootCmd.SetErr(os.Stderr)
 
 	return rootCmd.Execute()
-}
-
-func upload(c *config, sbomReportJSON []byte) error {
-	sbomReport := map[string]interface{}{}
-	err := json.Unmarshal(sbomReportJSON, &sbomReport)
-	if err != nil {
-		return err
-	}
-	t := newTemplateEngine(sbomReport)
-	projectName, err := t.render(c.projectName)
-	if err != nil {
-		return err
-	}
-	projectVersion, err := t.render(c.projectVersion)
-	if err != nil {
-		return err
-	}
-	projectTags := []string{}
-	for _, tag := range c.projectTags {
-		tag, err := t.render(tag)
-		if err != nil {
-			return err
-		}
-		projectTags = append(projectTags, tag)
-	}
-
-	bom, err := getBOM(sbomReportJSON)
-	if err != nil {
-		return err
-	}
-
-	ctx := context.Background()
-	if err := c.dtrack.UploadBOM(ctx, projectName, projectVersion, bom); err != nil {
-		return err
-	}
-
-	if len(c.projectTags) > 0 {
-		if err := c.dtrack.AddTagsToProject(ctx, projectName, projectVersion, projectTags); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func getBOM(sbomReportJSON []byte) ([]byte, error) {
-	var data map[string]interface{}
-
-	if err := json.Unmarshal(sbomReportJSON, &data); err != nil {
-		return nil, err
-	}
-
-	kind, ok := data["kind"].(string)
-	if !ok || kind != "SbomReport" {
-		return nil, errors.New("kind is not SbomReport")
-	}
-
-	apiVersion, ok := data["apiVersion"].(string)
-	if !ok {
-		return nil, fmt.Errorf("apiVersion %q is not found", apiVersion)
-	}
-
-	report, ok := data["report"].(map[string]interface{})
-	if !ok {
-		return nil, errors.New("report is not found")
-	}
-
-	bom, ok := report["components"].(map[string]interface{})
-	if !ok {
-		return nil, errors.New("bom is not found")
-	}
-
-	jsonBytes, err := json.Marshal(bom)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonBytes, nil
 }
