@@ -7,7 +7,7 @@ two ways to use:
 
 1. command line tool to receive JSON of SBOM Report from stdin
 
-  $ kubectl get sbom hoge -o json | sbomreport-to-dependencytrac
+  $ kubectl get sbom hoge -o json | sbomreport-to-dependencytrack
 
 2. http server that receives JSON of SBOM Report from Trivy Operator webhook
 
