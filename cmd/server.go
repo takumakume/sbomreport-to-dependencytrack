@@ -15,7 +15,7 @@ var serverCmd = &cobra.Command{
 	Short: "http server that receives JSON of SBOM Report from Trivy Operator webhook",
 	Long: `http server that receives JSON of SBOM Report from Trivy Operator webhook
 
-	$ sbomreport-to-dependencytrack server --port 80`,
+	$ sbomreport-to-dependencytrack server --port 8080`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c := config.New(
 			viper.GetString("base-url"),
@@ -43,7 +43,7 @@ func init() {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	flags := serverCmd.Flags()
-	flags.IntP("port", "p", 80, "Port number to listen http to receive webhook from trivy-operator (env: DT_PORT)")
+	flags.IntP("port", "p", 8080, "Port number to listen http to receive webhook from trivy-operator (env: DT_PORT)")
 	viper.BindPFlag("port", flags.Lookup("port"))
 
 	rootCmd.AddCommand(serverCmd)

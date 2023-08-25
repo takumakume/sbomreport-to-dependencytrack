@@ -25,7 +25,7 @@ two ways to use:
 
 2. http server that receives JSON of SBOM Report from Trivy Operator webhook
 
-  $ sbomreport-to-dependencytrack server --port 80
+  $ sbomreport-to-dependencytrack server --port 8080
 
 Templates with the SBOM Report as a variable can be used for the following items to be registered in the Dependency-Track.
 

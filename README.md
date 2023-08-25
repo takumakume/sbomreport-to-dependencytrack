@@ -11,7 +11,7 @@ two ways to use:
 
 2. http server that receives JSON of SBOM Report from Trivy Operator webhook
 
-  $ sbomreport-to-dependencytrack server --port 80
+  $ sbomreport-to-dependencytrack server --port 8080
 
 Templates with the SBOM Report as a variable can be used for the following items to be registered in the Dependency-Track.
 
@@ -97,7 +97,7 @@ $ docker run -p 80:80 \
   -e DT_PROJECT_TAGS="tag1,kube_namespace:[[.sbomReport.metadata.namespace]]" \
   -it docker.io/takumakume/sbomreport-to-dependencytrack:latest server
 
-2023/08/25 13:05:41 Listening on :80
+2023/08/25 13:05:41 Listening on :8080
 
 # Run `curl localhost -X POST -d @testdata/v1alpha1.json`
 
