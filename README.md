@@ -89,7 +89,7 @@ $ cat testdata/v1alpha1.json | sbomreport-to-dependencytrack \
 run server
 
 ```shell
-$ docker run -p 80:80 \
+$ docker run -p 8080:8080 \
   -e DT_BASE_URL=http://<Dependency-Track API IP address>:<Port>/ \
   -e DT_API_KEY=********************************* \
   -e DT_PROJECT_NAME="[[.sbomReport.report.artifact.repository]]" \

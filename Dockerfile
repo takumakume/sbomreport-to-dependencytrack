@@ -5,5 +5,5 @@ RUN adduser -u 10000 -D -g '' sbomreport-to-dependencytrack sbomreport-to-depend
 COPY sbomreport-to-dependencytrack /usr/local/bin/sbomreport-to-dependencytrack
 
 USER 10000
-EXPOSE 80
+EXPOSE 8080
 ENTRYPOINT ["sbomreport-to-dependencytrack"]
