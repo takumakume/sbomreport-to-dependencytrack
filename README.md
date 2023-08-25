@@ -141,3 +141,15 @@ config:
   # Dependency Track project tag template (comma separated)
   projectTags: ""
 ```
+
+register webhook with trivy-operator
+
+ref: https://aquasecurity.github.io/trivy-operator/latest/tutorials/integrations/webhook/
+
+e.g.
+
+```yaml
+env:
+  - name: OPERATOR_WEBHOOK_BROADCAST_URL
+    value: http://sbomreport-to-dependencytrack.default.svc.cluster.local:8080/
+```
