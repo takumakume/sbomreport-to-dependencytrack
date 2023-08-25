@@ -14,38 +14,43 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "sbomreport-to-dependencytrack",
-	Short: "Tool to send trivy-operator's SBOM Report to Dependency Track",
-	Long: `
-		Tool to send trivy-operator's SBOM Report to Dependency Track,
-		which can receive webhooks from Stdin and TrivyOperator and send them to Dependency Track.
-		Project and tags can be generated with templates using SBOM Report values.
-		
-		# from stdin
-		$ kubectl get sbom hoge -o json | sbomreport-to-dependencytrack
+	Short: "command line tool to receive JSON of SBOM Report from stdin",
+	Long: `Send Aqua Security Trivy Operator's SBOM Report to OWASP Dependency-Track.
 
-		# from webhook
-		$ sbomreport-to-dependencytrack server --port 80
+1. command line tool to receive JSON of SBOM Report from stdin
 
-		# set project name, version and tags
-		#  - using go template with sprig functions 
-		#  - delimiter: "[[" "]]" (no conflict with helm template)
-		#  - ".sbomReport" variable: the root of the SBOM Report
-		$ kubectl get sbom hoge -o json | sbomreport-to-dependencytrack \
-			--base_url http://localhost:8081 \
-			--api-key 1234567890 \
-			--project-name "[[ .sbomReport.report.artifact.repository ]]"
-			--project-version "[[ .sbomReport.report.artifact.tag ]]"
-			--project-tags "tag1,kube_cluster_name:production,kube_namespace:[[ .sbomReport.report.metadaga.namespace ]]"
+	$ kubectl get sbom hoge -o json | sbomreport-to-dependencytrac
 
-		# set by environment variables
-		$ kubectl get sbom hoge -o json | \
-			DT_BASE_URL=http://localhost:8081 \
-			DT_API_KEY=1234567890 \
-			DT_PROJECT_NAME="[[ .sbomReport.report.artifact.repository ]]" \
-			DT_PROJECT_VERSION="[[ .sbomReport.report.artifact.tag ]]" \
-			DT_PROJECT_TAGS="tag1,kube_cluster_name:production,kube_namespace:[[ .sbomReport.report.metadaga.namespace ]]" \
-			sbomreport-to-dependencytrack
-		`,
+2. http server that receives JSON of SBOM Report from Trivy Operator webhook
+
+	$ sbomreport-to-dependencytrack server --port 80
+
+Templates with the SBOM Report as a variable can be used for the following items to be registered in the Dependency Track.
+
+* Project Name
+* Project Version
+* Project Tags
+
+	$ kubectl get sbom hoge -o json | sbomreport-to-dependencytrack \
+	    --base-url http://127.0.0.1:8081/ \
+		--api-key 1234567890 \
+	    --project-name "[[.sbomReport.report.artifact.repository]]" \                  # e.g. "library/alpine"
+	    --project-version "[[.sbomReport.report.artifact.tag]]" \                      # e.g. "3.13.5"
+	    --project-tags "tag1,kube_namespace:[[.sbomReport.report.metadata.namespace]]" # e.g. ["tag1", "kube_namespace:default"]
+
+	For template, go-template and sprig functions can be used.
+	The delimiter of template is "[[" "]]". This is to avoid conflicts with other tools such as Helm.
+
+Environment variables can be used instead of command line arguments, which may be useful when running on Kubernetes.
+
+	$ kubectl get sbom hoge -o json | \
+		DT_BASE_URL=http://127.0.0.1:8081 \
+		DT_API_KEY=1234567890 \
+		DT_PROJECT_NAME="[[.sbomReport.report.artifact.repository]]" \
+		DT_PROJECT_VERSION="[[.sbomReport.report.artifact.tag]]" \
+		DT_PROJECT_TAGS="tag1,kube_namespace:[[.sbomReport.report.metadata.namespace]]" \
+		sbomreport-to-dependencytrack
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
@@ -81,7 +86,7 @@ func init() {
 
 	flags := rootCmd.PersistentFlags()
 
-	flags.StringP("base-url", "u", "http://lolcalhost:8081/", "Dependency Track base URL (env: DT_BASE_URL)")
+	flags.StringP("base-url", "u", "http://127.0.0.1:8081/", "Dependency Track base URL (env: DT_BASE_URL)")
 	flags.StringP("api-key", "k", "", "Dependency Track API key (env: DT_API_KEY)")
 	flags.StringP("project-name", "", "[[.sbomReport.report.artifact.repository]]", "Project name template (env: DT_PROJECT_NAME)")
 	flags.StringP("project-version", "", "[[.sbomReport.report.artifact.tag]]", "Project version template (env: DT_PROJECT_VERSION)")
