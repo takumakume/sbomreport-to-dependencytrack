@@ -5,7 +5,7 @@ mock: ## Generate mocks for testing.
 
 .PHONY: go-deps
 go-deps:
-	go install github.com/golang/mock/mockgen
+	go install github.com/golang/mock/mockgen@latest
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
