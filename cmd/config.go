@@ -7,7 +7,7 @@ import (
 )
 
 type config struct {
-	dtrack         *dependencytrack.DependencyTrack
+	dtrack         dependencytrack.DependencyTrackClient
 	projectName    string
 	projectVersion string
 	projectTags    []string
