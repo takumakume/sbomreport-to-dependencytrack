@@ -1,6 +1,7 @@
 # sbomreport-to-dependencytrack
 
-```shell
+```
+$ sbomreport-to-dependencytrack -h
 Send Aqua Security Trivy Operator's SBOM Report to OWASP Dependency-Track.
 
 two ways to use:
