@@ -142,7 +142,7 @@ config:
   projectTags: ""
 ```
 
-register webhook with trivy-operator
+register trivy-operator webhook
 
 ref: https://aquasecurity.github.io/trivy-operator/latest/tutorials/integrations/webhook/
 
