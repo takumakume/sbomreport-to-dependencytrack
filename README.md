@@ -100,7 +100,7 @@ $ docker run -p 8080:8080 \
 
 2023/08/25 13:05:41 Listening on :8080
 
-# Run `curl localhost -X POST -d @testdata/v1alpha1.json`
+# Run `curl http://127.0.0.1:8080 -X POST -d @testdata/v1alpha1.json`
 
 2023/08/25 22:05:44 Uploading BOM: project library/alpine:latest
 2023/08/25 22:05:44 Polling completion of upload BOM: project library/alpine:latest token 811585ae-39c9-402e-9e79-82e33a3d401d
