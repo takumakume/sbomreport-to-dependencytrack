@@ -16,6 +16,11 @@ func TestUpload_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sbomReportV1alpha1WithVerb, err := os.ReadFile("../testdata/v1alpha1_with_verb.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	ctx := context.Background()
 
 	ctrl := gomock.NewController(t)
@@ -79,6 +84,21 @@ func TestUpload_Run(t *testing.T) {
 				err: nil,
 			},
 			wantErr: false,
+		},
+		{
+			name: "delete verb is not supported",
+			config: &config.Config{
+				BaseURL:        "http://localhost:8081",
+				APIKey:         "apiKey",
+				ProjectName:    "[[.sbomReport.report.artifact.repository]]",
+				ProjectVersion: "[[.sbomReport.report.artifact.tag]]",
+				ProjectTags: []string{
+					"test",
+					"kube_namespace:[[.sbomReport.metadata.namespace]]",
+				},
+			},
+			input:   sbomReportV1alpha1WithVerb,
+			wantErr: true,
 		},
 		{
 			name: "no tags",

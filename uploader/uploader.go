@@ -2,6 +2,7 @@ package uploader
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/takumakume/sbomreport-to-dependencytrack/config"
@@ -37,6 +38,10 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 	sbom, err := sbomreport.New(input)
 	if err != nil {
 		return err
+	}
+
+	if !sbom.ISVerbUpdate() {
+		return errors.New("only support verb is update")
 	}
 
 	sbomMap, err := sbom.ToMap()

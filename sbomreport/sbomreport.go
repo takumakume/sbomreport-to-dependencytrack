@@ -9,15 +9,17 @@ import (
 type SbomReport struct {
 	rawJSON []byte
 	bom     []byte
+	verb    string
 }
 
 func New(rawJSON []byte) (*SbomReport, error) {
-	bom, err := getBOM(rawJSON)
+	bom, verb, err := getBOMAndVerb(rawJSON)
 	if err != nil {
 		return nil, err
 	}
 	return &SbomReport{
 		rawJSON: rawJSON,
+		verb:    verb,
 		bom:     bom,
 	}, nil
 }
@@ -34,37 +36,54 @@ func (s *SbomReport) BOM() []byte {
 	return s.bom
 }
 
-func getBOM(rawJSON []byte) ([]byte, error) {
+func (s *SbomReport) ISVerbUpdate() bool {
+	return s.verb == "update"
+}
+
+func getBOMAndVerb(rawJSON []byte) ([]byte, string, error) {
+	verb := "update"
 	var data map[string]interface{}
 
 	if err := json.Unmarshal(rawJSON, &data); err != nil {
-		return nil, err
+		return nil, verb, err
 	}
 
-	kind, ok := data["kind"].(string)
+	obj := data
+
+	v, ok := data["verb"].(string)
+	if ok {
+		verb = v
+		if operatorObject, ok := data["operatorObject"].(map[string]interface{}); ok {
+			obj = operatorObject
+		} else {
+			return nil, verb, errors.New("operatorObject is not found")
+		}
+	}
+
+	kind, ok := obj["kind"].(string)
 	if !ok || kind != "SbomReport" {
-		return nil, errors.New("kind is not SbomReport")
+		return nil, verb, errors.New("kind is not SbomReport")
 	}
 
-	apiVersion, ok := data["apiVersion"].(string)
+	apiVersion, ok := obj["apiVersion"].(string)
 	if !ok {
-		return nil, fmt.Errorf("apiVersion %q is not found", apiVersion)
+		return nil, verb, fmt.Errorf("apiVersion %q is not found", apiVersion)
 	}
 
-	report, ok := data["report"].(map[string]interface{})
+	report, ok := obj["report"].(map[string]interface{})
 	if !ok {
-		return nil, errors.New("report is not found")
+		return nil, verb, errors.New("report is not found")
 	}
 
 	bom, ok := report["components"].(map[string]interface{})
 	if !ok {
-		return nil, errors.New("bom is not found")
+		return nil, verb, errors.New("bom is not found")
 	}
 
 	jsonBytes, err := json.Marshal(bom)
 	if err != nil {
-		return nil, err
+		return nil, verb, err
 	}
 
-	return jsonBytes, nil
+	return jsonBytes, verb, nil
 }
