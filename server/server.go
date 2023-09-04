@@ -41,6 +41,7 @@ func (s *Server) Run() error {
 
 func healthzFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("DEBUG: server.healthzFunc: ok")
 		w.Write([]byte("ok"))
 	}
 }
@@ -48,19 +49,24 @@ func healthzFunc() http.HandlerFunc {
 func uploadFunc(ctx context.Context, u uploader.Uploader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
+			log.Printf("ERROR: server.uploadFunc: method not allowed: %s\n", r.Method)
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
 		if r.Body == nil {
+			log.Println("ERROR: server.uploadFunc: request body is empty")
 			http.Error(w, "request body is empty", http.StatusBadRequest)
 			return
 		}
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
+			log.Printf("ERROR: server.uploadFunc: request body read failed: %s\n", err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		log.Printf("DEBUG: server.uploadFunc: request body: %s\n", string(body))
 		if err := u.Run(ctx, body); err != nil {
+			log.Printf("ERROR: server.uploadFunc: upload failed: %s\n", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
