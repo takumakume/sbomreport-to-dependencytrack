@@ -3,6 +3,7 @@ package dependencytrack
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"log"
 	"time"
 
@@ -16,6 +17,26 @@ type DependencyTrackClient interface {
 
 type DependencyTrack struct {
 	Client *dtrack.Client
+}
+
+var (
+	ErrProjectNotFound = errors.New("project not found")
+)
+
+func IsNotFound(err error) bool {
+	switch err {
+	case ErrProjectNotFound:
+		return true
+	}
+
+	switch err := err.(type) {
+	case *dtrack.APIError:
+		if err.StatusCode == 404 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func New(baseURL, apiKey string, timeout time.Duration) (*DependencyTrack, error) {
@@ -85,6 +106,19 @@ func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVe
 	}
 
 	return nil
+}
+
+func (d *DependencyTrack) GetProjectForNameVersion(ctx context.Context, projectName, projectVersion string, excludeInactive, onlyRoot bool) (p dtrack.Project, err error) {
+	projects, err := d.Client.Project.GetProjectsForName(ctx, projectName, excludeInactive, onlyRoot)
+	if err != nil {
+		return p, err
+	}
+	for _, project := range projects {
+		if project.Version == projectVersion {
+			return project, nil
+		}
+	}
+	return p, ErrProjectNotFound
 }
 
 func (dt *DependencyTrack) AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error {
