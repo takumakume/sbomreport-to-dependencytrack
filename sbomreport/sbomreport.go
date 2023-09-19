@@ -87,3 +87,28 @@ func getBOMAndVerb(rawJSON []byte) ([]byte, string, error) {
 
 	return jsonBytes, verb, nil
 }
+
+func (s *SbomReport) MetadataComponentBomRef() (string, error) {
+	var obj map[string]interface{}
+
+	if err := json.Unmarshal(s.bom, &obj); err != nil {
+		return "", err
+	}
+
+	metadata, ok := obj["metadata"].(map[string]interface{})
+	if !ok {
+		return "nil", errors.New("bom metadata is not found")
+	}
+
+	component, ok := metadata["component"].(map[string]interface{})
+	if !ok {
+		return "", errors.New("bom metadata.component is not found")
+	}
+
+	bomRef, ok := component["bom-ref"].(string)
+	if !ok || bomRef == "" {
+		return "", errors.New("bom metadata.component.bom-ref is not found or empty")
+	}
+
+	return bomRef, nil
+}

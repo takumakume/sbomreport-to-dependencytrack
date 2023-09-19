@@ -13,6 +13,7 @@ import (
 type DependencyTrackClient interface {
 	UploadBOM(ctx context.Context, projectName, projectVersion string, bom []byte) error
 	AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error
+	GetProjectForNameVersion(ctx context.Context, projectName, projectVersion string, excludeInactive, onlyRoot bool) (p dtrack.Project, err error)
 }
 
 type DependencyTrack struct {

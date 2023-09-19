@@ -57,3 +57,34 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
+
+func TestSbomReport_MetadataComponentBomRef(t *testing.T) {
+	type fields struct {
+		rawJSON []byte
+		bom     []byte
+		verb    string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    string
+		wantErr bool
+	}{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &SbomReport{
+				rawJSON: tt.fields.rawJSON,
+				bom:     tt.fields.bom,
+				verb:    tt.fields.verb,
+			}
+			got, err := s.MetadataComponentBomRef()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SbomReport.MetadataComponentBomRef() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("SbomReport.MetadataComponentBomRef() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

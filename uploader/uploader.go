@@ -70,6 +70,17 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 		projectTags = append(projectTags, t)
 	}
 
+	_, err = u.dtrack.GetProjectForNameVersion(ctx, projectName, projectVersion, true, true)
+	if err != nil {
+		if dependencytrack.IsNotFound(err) {
+			if err := u.dtrack.UploadBOM(ctx, projectName, projectVersion, sbom.BOM()); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
 	if err := u.dtrack.UploadBOM(ctx, projectName, projectVersion, sbom.BOM()); err != nil {
 		return err
 	}
