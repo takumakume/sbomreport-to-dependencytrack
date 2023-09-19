@@ -64,7 +64,6 @@ func uploadFunc(ctx context.Context, u uploader.Uploader) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		log.Printf("DEBUG: server.uploadFunc: request body: %s\n", string(body))
 		if err := u.Run(ctx, body); err != nil {
 			log.Printf("ERROR: server.uploadFunc: upload failed: %s\n", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
