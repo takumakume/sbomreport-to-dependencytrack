@@ -1,6 +1,7 @@
 package sbomreport
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -53,6 +54,39 @@ func TestNew(t *testing.T) {
 			}
 			if got.verb != tt.wantVerb {
 				t.Errorf("New() verb = %v, wantVerb %v", got.verb, tt.wantVerb)
+			}
+		})
+	}
+}
+
+func TestIsErrNotSBOMReport(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "error is SbomReportError",
+			args: args{
+				err: ErrNotSBOMReport,
+			},
+			want: true,
+		},
+		{
+			name: "error is not SbomReportError",
+			args: args{
+				err: fmt.Errorf("some error"),
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsErrNotSBOMReport(tt.args.err); got != tt.want {
+				t.Errorf("IsErrNotSBOMReport() = %v, want %v", got, tt.want)
 			}
 		})
 	}

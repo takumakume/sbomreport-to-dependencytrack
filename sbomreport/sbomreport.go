@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+var ErrNotSBOMReport = errors.New("kind is not SbomReport")
+
 type SbomReport struct {
 	rawJSON []byte
 	bom     []byte
@@ -40,6 +42,10 @@ func (s *SbomReport) ISVerbUpdate() bool {
 	return s.verb == "update"
 }
 
+func IsErrNotSBOMReport(err error) bool {
+	return err == ErrNotSBOMReport
+}
+
 func getBOMAndVerb(rawJSON []byte) ([]byte, string, error) {
 	verb := "update"
 	var data map[string]interface{}
@@ -62,7 +68,7 @@ func getBOMAndVerb(rawJSON []byte) ([]byte, string, error) {
 
 	kind, ok := obj["kind"].(string)
 	if !ok || kind != "SbomReport" {
-		return nil, verb, errors.New("kind is not SbomReport")
+		return nil, verb, ErrNotSBOMReport
 	}
 
 	apiVersion, ok := obj["apiVersion"].(string)
