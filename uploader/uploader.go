@@ -3,6 +3,7 @@ package uploader
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/takumakume/sbomreport-to-dependencytrack/config"
@@ -37,6 +38,10 @@ func New(c *config.Config) (*Upload, error) {
 func (u *Upload) Run(ctx context.Context, input []byte) error {
 	sbom, err := sbomreport.New(input)
 	if err != nil {
+		if sbomreport.IsErrNotSBOMReport(err) {
+			log.Printf("SKIP: %s", err)
+			return nil
+		}
 		return err
 	}
 
