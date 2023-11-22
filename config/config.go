@@ -1,6 +1,9 @@
 package config
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type Config struct {
 	BaseURL string
@@ -14,6 +17,10 @@ type Config struct {
 var ErrAPIKeyIsRequired = errors.New("api-key is required")
 
 func New(baseURL, apiKey, projectName, projectVersion string, projectTags []string) *Config {
+	if len(projectTags) == 1 && strings.Contains(projectTags[0], ",") {
+		projectTags = strings.Split(projectTags[0], ",")
+	}
+
 	return &Config{
 		BaseURL:        baseURL,
 		APIKey:         apiKey,
