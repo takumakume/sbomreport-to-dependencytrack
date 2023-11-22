@@ -32,6 +32,7 @@ fullnameOverride: ""
 
 deploymentLabels: {}
 
+podLabels: {}
 podAnnotations: {}
 
 podSecurityContext: {}
