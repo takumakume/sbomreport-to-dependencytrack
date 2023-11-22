@@ -35,6 +35,23 @@ func TestNew(t *testing.T) {
 				ProjectTags:    []string{"tag1", "tag2"},
 			},
 		},
+		{
+			name: "success tag separator is comma",
+			args: args{
+				baseURL:        "https://example.com",
+				apiKey:         "12345",
+				projectName:    "test-project",
+				projectVersion: "1.0.0",
+				projectTags:    []string{"tag1,tag2"},
+			},
+			want: &Config{
+				BaseURL:        "https://example.com",
+				APIKey:         "12345",
+				ProjectName:    "test-project",
+				ProjectVersion: "1.0.0",
+				ProjectTags:    []string{"tag1", "tag2"},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
