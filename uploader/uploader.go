@@ -4,15 +4,12 @@ import (
 	"context"
 	"errors"
 	"log"
-	"time"
 
 	"github.com/takumakume/sbomreport-to-dependencytrack/config"
 	"github.com/takumakume/sbomreport-to-dependencytrack/dependencytrack"
 	"github.com/takumakume/sbomreport-to-dependencytrack/sbomreport"
 	tmpl "github.com/takumakume/sbomreport-to-dependencytrack/template"
 )
-
-const TIMEOUT = 10
 
 type Uploader interface {
 	Run(ctx context.Context, input []byte) error
@@ -24,7 +21,7 @@ type Upload struct {
 }
 
 func New(c *config.Config) (*Upload, error) {
-	dtrack, err := dependencytrack.New(c.BaseURL, c.APIKey, time.Duration(TIMEOUT)*time.Second)
+	dtrack, err := dependencytrack.New(c.BaseURL, c.APIKey, c.DtrackClientTimeout, c.SBOMUploadTimeout, c.SBOMUploadCheckInterval)
 	if err != nil {
 		return nil, err
 	}
