@@ -23,6 +23,9 @@ var serverCmd = &cobra.Command{
 			viper.GetString("project-name"),
 			viper.GetString("project-version"),
 			viper.GetStringSlice("project-tags"),
+			viper.GetFloat64("dtrack-client-timeout-sec"),
+			viper.GetFloat64("sbom-upload-timeout-sec"),
+			viper.GetFloat64("sbom-upload-check-interval-sec"),
 		)
 		if err := c.Validate(); err != nil {
 			return err

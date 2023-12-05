@@ -3,6 +3,7 @@ package dependencytrack
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"time"
 
@@ -16,16 +17,21 @@ type DependencyTrackClient interface {
 
 type DependencyTrack struct {
 	Client *dtrack.Client
+
+	SBOMUploadTimeout       time.Duration
+	SBOMUploadCheckInterval time.Duration
 }
 
-func New(baseURL, apiKey string, timeout time.Duration) (*DependencyTrack, error) {
-	client, err := dtrack.NewClient(baseURL, dtrack.WithAPIKey(apiKey), dtrack.WithTimeout(timeout))
+func New(baseURL, apiKey string, dtrackClientTimeout, sbomUploadTimeout, sbomUploadCheckInterval time.Duration) (*DependencyTrack, error) {
+	client, err := dtrack.NewClient(baseURL, dtrack.WithAPIKey(apiKey), dtrack.WithTimeout(dtrackClientTimeout))
 	if err != nil {
 		return nil, err
 	}
 
 	return &DependencyTrack{
-		Client: client,
+		Client:                  client,
+		SBOMUploadTimeout:       sbomUploadTimeout,
+		SBOMUploadCheckInterval: sbomUploadCheckInterval,
 	}, nil
 }
 
@@ -53,7 +59,7 @@ func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVe
 			close(errChan)
 		}()
 
-		ticker := time.NewTicker(1 * time.Second)
+		ticker := time.NewTicker(dt.SBOMUploadCheckInterval)
 		defer ticker.Stop()
 
 		for {
@@ -68,6 +74,9 @@ func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVe
 					doneChan <- struct{}{}
 					return
 				}
+			case <-time.After(dt.SBOMUploadTimeout):
+				errChan <- fmt.Errorf("timeout exceeded")
+				return
 			case <-ctx.Done():
 				errChan <- ctx.Err()
 				return
