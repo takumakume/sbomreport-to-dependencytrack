@@ -48,6 +48,18 @@ spec:
               value: {{ .Values.config.projectVersion | quote }}
             - name: DT_PROJECT_TAGS
               value: {{ .Values.config.projectTags | quote }}
+            {{- with .Values.config.dtrackClientTimeout }}
+            - name: DT_DTRACK_CLIENT_TIMEOUT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.config.sbomUploadTimeoutSec }}
+            - name: DT_SBOM_UPLOAD_TIMEOUT_SEC
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.config.sbomUploadCheckIntervalSec }}
+            - name: DT_SBOM_UPLOAD_CHECK_INTERVAL_SEC
+              value: {{ . | quote }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

@@ -20,6 +20,15 @@ config:
   # Dependency Track project tag template (comma separated)
   projectTags: ""
 
+  # Dependency Track client timeout seconds
+  dtrackClientTimeout:
+
+  # Seconds to timeout waiting for completion of SBOM upload of Dependency Track
+  sbomUploadTimeoutSec:
+
+  # Interval seconds to check for completion of SBOM upload of Dependency Track
+  sbomUploadCheckIntervalSec:
+
 image:
   repository: docker.io/takumakume/sbomreport-to-dependencytrack
   pullPolicy: IfNotPresent
