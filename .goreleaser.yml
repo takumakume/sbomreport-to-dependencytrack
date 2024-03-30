@@ -74,8 +74,8 @@ dockers:
 docker_manifests:
 - name_template: 'takumakume/sbomreport-to-dependencytrack:{{ .Version }}'
   image_templates:
-  - 'takumakume/sbomreport-to-dependencytrack{{ .Version }}-arm64'
-  - 'takumakume/sbomreport-to-dependencytrack{{ .Version }}-amd64'
+  - 'takumakume/sbomreport-to-dependencytrack:{{ .Version }}-arm64'
+  - 'takumakume/sbomreport-to-dependencytrack:{{ .Version }}-amd64'
 - name_template: 'takumakume/sbomreport-to-dependencytrack:latest'
   image_templates:
   - 'takumakume/sbomreport-to-dependencytrack:latest-arm64'
