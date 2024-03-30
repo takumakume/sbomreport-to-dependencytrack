@@ -45,8 +45,8 @@ dockers:
     goos: linux
     goarch: amd64
     image_templates:
-      - 'docker.io/takumakume/sbomreport-to-dependencytrack:{{ .Version }}'
-      - 'docker.io/takumakume/sbomreport-to-dependencytrack:latest'
+      - 'docker.io/takumakume/sbomreport-to-dependencytrack:{{ .Version }}-amd64'
+      - 'docker.io/takumakume/sbomreport-to-dependencytrack:latest-amd64'
     dockerfile: Dockerfile
     build_flag_templates:
       - "--pull"
@@ -55,3 +55,27 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--label=org.opencontainers.image.source=https://github.com/takumakume/sbomreport-to-dependencytrack"
+  -
+    goos: linux
+    goarch: arm64
+    image_templates:
+      - 'docker.io/takumakume/sbomreport-to-dependencytrack:{{ .Version }}-arm64'
+      - 'docker.io/takumakume/sbomreport-to-dependencytrack:latest-arm64'
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/takumakume/sbomreport-to-dependencytrack"
+
+docker_manifests:
+- name_template: 'takumakume/sbomreport-to-dependencytrack:{{ .Version }}'
+  image_templates:
+  - 'takumakume/sbomreport-to-dependencytrack{{ .Version }}-arm64'
+  - 'takumakume/sbomreport-to-dependencytrack{{ .Version }}-amd64'
+- name_template: 'takumakume/sbomreport-to-dependencytrack:latest'
+  image_templates:
+  - 'takumakume/sbomreport-to-dependencytrack:latest-arm64'
+  - 'takumakume/sbomreport-to-dependencytrack:latest-amd64'
