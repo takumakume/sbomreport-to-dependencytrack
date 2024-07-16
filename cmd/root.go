@@ -69,6 +69,8 @@ Dependency-Track APK key permissions required:
 			viper.GetString("project-name"),
 			viper.GetString("project-version"),
 			viper.GetStringSlice("project-tags"),
+			viper.GetString("parent-name"),
+			viper.GetString("parent-version"),
 			viper.GetFloat64("dtrack-client-timeout"),
 			viper.GetFloat64("sbom-upload-timeout-sec"),
 			viper.GetFloat64("sbom-upload-check-interval-sec"),
@@ -103,6 +105,8 @@ func init() {
 	flags.StringP("project-name", "", "[[.sbomReport.report.artifact.repository]]", "Project name template (env: DT_PROJECT_NAME)")
 	flags.StringP("project-version", "", "[[.sbomReport.report.artifact.tag]]", "Project version template (env: DT_PROJECT_VERSION)")
 	flags.StringSliceP("project-tags", "t", []string{}, "Project tags template (env: DT_PROJECT_TAGS (comma separated))")
+	flags.StringP("parent-name", "", "", "Parent project name template (env: DT_PARENT_PROJECT_NAME)")
+	flags.StringP("parent-version", "", "", "Parent project version template (env: DT_PARENT_PROJECT_VERSION)")
 	flags.Float64P("dtrack-client-timeout", "", 10, "Dependency Track client timeout seconds")
 	flags.Float64P("sbom-upload-timeout-sec", "", 30, "Seconds to timeout waiting for completion of SBOM upload of Dependency Track")
 	flags.Float64P("sbom-upload-check-interval-sec", "", 1, "Interval seconds to check for completion of SBOM upload of Dependency Track")
@@ -112,6 +116,8 @@ func init() {
 	viper.BindPFlag("project-name", flags.Lookup("project-name"))
 	viper.BindPFlag("project-version", flags.Lookup("project-version"))
 	viper.BindPFlag("project-tags", flags.Lookup("project-tags"))
+	viper.BindPFlag("parent-name", flags.Lookup("parent-name"))
+	viper.BindPFlag("parent-version", flags.Lookup("parent-version"))
 	viper.BindPFlag("dtrack-client-timeout", flags.Lookup("dtrack-client-timeout"))
 	viper.BindPFlag("sbom-upload-timeout-sec", flags.Lookup("sbom-upload-timeout-sec"))
 	viper.BindPFlag("sbom-upload-check-interval-sec", flags.Lookup("sbom-upload-check-interval-sec"))
