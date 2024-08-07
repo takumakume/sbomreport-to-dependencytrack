@@ -141,7 +141,7 @@ func TestUpload_Run(t *testing.T) {
 
 	for _, tc := range testCases {
 		if tc.mockUploadBOM.enable {
-			mockDTrack.EXPECT().UploadBOM(ctx, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, gomock.Any()).Return(tc.mockUploadBOM.err)
+			mockDTrack.EXPECT().UploadBOM(ctx, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, tc.mockUploadBOM.parentName, tc.mockUploadBOM.parentVersion, gomock.Any()).Return(tc.mockUploadBOM.err)
 		}
 		if tc.mockAddTagsToProject.enable {
 			mockDTrack.EXPECT().AddTagsToProject(ctx, tc.mockAddTagsToProject.projectName, tc.mockAddTagsToProject.projectVersion, tc.mockAddTagsToProject.projectTags).Return(tc.mockAddTagsToProject.err)
