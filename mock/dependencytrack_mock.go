@@ -49,15 +49,15 @@ func (mr *MockDependencyTrackClientMockRecorder) AddTagsToProject(ctx, projectNa
 }
 
 // UploadBOM mocks base method.
-func (m *MockDependencyTrackClient) UploadBOM(ctx context.Context, projectName, projectVersion string, bom []byte) error {
+func (m *MockDependencyTrackClient) UploadBOM(ctx context.Context, projectName, projectVersion, parentName, parentVersion string, bom []byte) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadBOM", ctx, projectName, projectVersion, bom)
+	ret := m.ctrl.Call(m, "UploadBOM", ctx, projectName, projectVersion, parentName, parentVersion, bom)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadBOM indicates an expected call of UploadBOM.
-func (mr *MockDependencyTrackClientMockRecorder) UploadBOM(ctx, projectName, projectVersion, bom interface{}) *gomock.Call {
+func (mr *MockDependencyTrackClientMockRecorder) UploadBOM(ctx, projectName, projectVersion, parentName, parentVersion, bom interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadBOM", reflect.TypeOf((*MockDependencyTrackClient)(nil).UploadBOM), ctx, projectName, projectVersion, bom)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadBOM", reflect.TypeOf((*MockDependencyTrackClient)(nil).UploadBOM), ctx, projectName, projectVersion, parentName, parentVersion, bom)
 }

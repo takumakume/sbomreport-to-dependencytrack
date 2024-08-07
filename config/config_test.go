@@ -13,6 +13,8 @@ func TestNew(t *testing.T) {
 		projectName                string
 		projectVersion             string
 		projectTags                []string
+		parentName                 string
+		parentVersion              string
 		dtrackClientTimeoutSec     float64
 		sbomUploadTimeoutSec       float64
 		sbomUploadCheckIntervalSec float64
@@ -30,6 +32,8 @@ func TestNew(t *testing.T) {
 				projectName:                "test-project",
 				projectVersion:             "1.0.0",
 				projectTags:                []string{"tag1", "tag2"},
+				parentName:                 "TEST",
+				parentVersion:              "1.0.0",
 				dtrackClientTimeoutSec:     10,
 				sbomUploadTimeoutSec:       30,
 				sbomUploadCheckIntervalSec: 1,
@@ -40,6 +44,8 @@ func TestNew(t *testing.T) {
 				ProjectName:             "test-project",
 				ProjectVersion:          "1.0.0",
 				ProjectTags:             []string{"tag1", "tag2"},
+				ParentName:              "TEST",
+				ParentVersion:           "1.0.0",
 				DtrackClientTimeout:     time.Duration(10) * time.Second,
 				SBOMUploadTimeout:       time.Duration(30) * time.Second,
 				SBOMUploadCheckInterval: time.Duration(1) * time.Second,
@@ -53,6 +59,8 @@ func TestNew(t *testing.T) {
 				projectName:                "test-project",
 				projectVersion:             "1.0.0",
 				projectTags:                []string{"tag1,tag2"},
+				parentName:                 "TEST",
+				parentVersion:              "1.0.0",
 				dtrackClientTimeoutSec:     10,
 				sbomUploadTimeoutSec:       30,
 				sbomUploadCheckIntervalSec: 1,
@@ -63,6 +71,8 @@ func TestNew(t *testing.T) {
 				ProjectName:             "test-project",
 				ProjectVersion:          "1.0.0",
 				ProjectTags:             []string{"tag1", "tag2"},
+				ParentName:              "TEST",
+				ParentVersion:           "1.0.0",
 				DtrackClientTimeout:     time.Duration(10) * time.Second,
 				SBOMUploadTimeout:       time.Duration(30) * time.Second,
 				SBOMUploadCheckInterval: time.Duration(1) * time.Second,
@@ -71,7 +81,7 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := New(tt.args.baseURL, tt.args.apiKey, tt.args.projectName, tt.args.projectVersion, tt.args.projectTags, tt.args.dtrackClientTimeoutSec, tt.args.sbomUploadTimeoutSec, tt.args.sbomUploadCheckIntervalSec); !reflect.DeepEqual(got, tt.want) {
+			if got := New(tt.args.baseURL, tt.args.apiKey, tt.args.projectName, tt.args.projectVersion, tt.args.projectTags, tt.args.parentName, tt.args.parentVersion, tt.args.dtrackClientTimeoutSec, tt.args.sbomUploadTimeoutSec, tt.args.sbomUploadCheckIntervalSec); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}
 		})
@@ -85,6 +95,8 @@ func TestConfig_Validate(t *testing.T) {
 		ProjectName    string
 		ProjectVersion string
 		ProjectTags    []string
+		ParentName     string `json:"parentName,omitempty"`
+		ParentVersion  string `json:"parentVersion,omitempty"`
 	}
 	tests := []struct {
 		name    string
@@ -99,6 +111,8 @@ func TestConfig_Validate(t *testing.T) {
 				ProjectName:    "test-project",
 				ProjectVersion: "1.0.0",
 				ProjectTags:    []string{"tag1", "tag2"},
+				ParentName:     "TEST",
+				ParentVersion:  "1.0.0",
 			},
 			wantErr: false,
 		},
@@ -109,6 +123,8 @@ func TestConfig_Validate(t *testing.T) {
 				ProjectName:    "test-project",
 				ProjectVersion: "1.0.0",
 				ProjectTags:    []string{"tag1", "tag2"},
+				ParentName:     "TEST",
+				ParentVersion:  "1.0.0",
 			},
 			wantErr: true,
 		},
@@ -121,6 +137,8 @@ func TestConfig_Validate(t *testing.T) {
 				ProjectName:    tt.fields.ProjectName,
 				ProjectVersion: tt.fields.ProjectVersion,
 				ProjectTags:    tt.fields.ProjectTags,
+				ParentName:     tt.fields.ParentName,
+				ParentVersion:  tt.fields.ParentVersion,
 			}
 			if err := c.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Config.Validate() error = %v, wantErr %v", err, tt.wantErr)

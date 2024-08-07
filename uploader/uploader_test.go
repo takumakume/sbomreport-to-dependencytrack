@@ -33,6 +33,8 @@ func TestUpload_Run(t *testing.T) {
 		projectName    string
 		projectVersion string
 		projectTags    []string
+		parentName     string
+		parentVersion  string
 		err            error
 	}
 	type mockAddTagsToProject struct {
@@ -57,6 +59,8 @@ func TestUpload_Run(t *testing.T) {
 				APIKey:         "apiKey",
 				ProjectName:    "[[.sbomReport.report.artifact.repository]]",
 				ProjectVersion: "[[.sbomReport.report.artifact.tag]]",
+				ParentName:     "[[.sbomReport.metadata.namespace]]",
+				ParentVersion:  "[[.sbomReport.report.artifact.tag]]",
 				ProjectTags: []string{
 					"test",
 					"kube_namespace:[[.sbomReport.metadata.namespace]]",
@@ -67,6 +71,8 @@ func TestUpload_Run(t *testing.T) {
 				enable:         true,
 				projectName:    "library/alpine",
 				projectVersion: "latest",
+				parentName:     "default",
+				parentVersion:  "latest",
 				projectTags: []string{
 					"test",
 					"kube_namespace:default",
@@ -92,6 +98,8 @@ func TestUpload_Run(t *testing.T) {
 				APIKey:         "apiKey",
 				ProjectName:    "[[.sbomReport.report.artifact.repository]]",
 				ProjectVersion: "[[.sbomReport.report.artifact.tag]]",
+				ParentName:     "[[.sbomReport.metadata.namespace]]",
+				ParentVersion:  "[[.sbomReport.report.artifact.tag]]",
 				ProjectTags: []string{
 					"test",
 					"kube_namespace:[[.sbomReport.metadata.namespace]]",
@@ -107,6 +115,8 @@ func TestUpload_Run(t *testing.T) {
 				APIKey:         "apiKey",
 				ProjectName:    "[[.sbomReport.report.artifact.repository]]",
 				ProjectVersion: "[[.sbomReport.report.artifact.tag]]",
+				ParentName:     "[[.sbomReport.metadata.namespace]]",
+				ParentVersion:  "[[.sbomReport.report.artifact.tag]]",
 				ProjectTags:    []string{},
 			},
 			input: sbomReportV1alpha1,
@@ -114,6 +124,8 @@ func TestUpload_Run(t *testing.T) {
 				enable:         true,
 				projectName:    "library/alpine",
 				projectVersion: "latest",
+				parentName:     "default",
+				parentVersion:  "latest",
 				projectTags: []string{
 					"test",
 					"kube_namespace:default",
@@ -129,7 +141,7 @@ func TestUpload_Run(t *testing.T) {
 
 	for _, tc := range testCases {
 		if tc.mockUploadBOM.enable {
-			mockDTrack.EXPECT().UploadBOM(ctx, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, gomock.Any()).Return(tc.mockUploadBOM.err)
+			mockDTrack.EXPECT().UploadBOM(ctx, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, tc.mockUploadBOM.parentName, tc.mockUploadBOM.parentVersion, gomock.Any()).Return(tc.mockUploadBOM.err)
 		}
 		if tc.mockAddTagsToProject.enable {
 			mockDTrack.EXPECT().AddTagsToProject(ctx, tc.mockAddTagsToProject.projectName, tc.mockAddTagsToProject.projectVersion, tc.mockAddTagsToProject.projectTags).Return(tc.mockAddTagsToProject.err)

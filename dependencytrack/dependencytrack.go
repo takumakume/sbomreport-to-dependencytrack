@@ -11,7 +11,7 @@ import (
 )
 
 type DependencyTrackClient interface {
-	UploadBOM(ctx context.Context, projectName, projectVersion string, bom []byte) error
+	UploadBOM(ctx context.Context, projectName, projectVersion string, parentName string, parentVersion string, bom []byte) error
 	AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error
 }
 
@@ -35,12 +35,14 @@ func New(baseURL, apiKey string, dtrackClientTimeout, sbomUploadTimeout, sbomUpl
 	}, nil
 }
 
-func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVersion string, bom []byte) error {
+func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVersion string, parentName string, parentVersion string, bom []byte) error {
 	log.Printf("Uploading BOM: project %s:%s", projectName, projectVersion)
 
 	uploadToken, err := dt.Client.BOM.Upload(ctx, dtrack.BOMUploadRequest{
 		ProjectName:    projectName,
 		ProjectVersion: projectVersion,
+		ParentName:     parentName,
+		ParentVersion:  parentVersion,
 		AutoCreate:     true,
 		BOM:            base64.StdEncoding.EncodeToString(bom),
 	})
