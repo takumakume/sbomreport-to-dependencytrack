@@ -72,7 +72,17 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 		projectTags = append(projectTags, t)
 	}
 
-	if err := u.dtrack.UploadBOM(ctx, projectName, projectVersion, sbom.BOM()); err != nil {
+	parentName, err := tpl.Render(u.config.ParentName)
+	if err != nil {
+		return err
+	}
+
+	parentVersion, err := tpl.Render(u.config.ParentVersion)
+	if err != nil {
+		return err
+	}
+
+	if err := u.dtrack.UploadBOM(ctx, projectName, projectVersion, parentName, parentVersion, sbom.BOM()); err != nil {
 		return err
 	}
 

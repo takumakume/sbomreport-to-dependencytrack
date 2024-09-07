@@ -14,6 +14,9 @@ type Config struct {
 	ProjectVersion string
 	ProjectTags    []string
 
+	ParentName    string `json:"parentName,omitempty"`
+	ParentVersion string `json:"parentVersion,omitempty"`
+
 	DtrackClientTimeout     time.Duration
 	SBOMUploadTimeout       time.Duration
 	SBOMUploadCheckInterval time.Duration
@@ -21,7 +24,7 @@ type Config struct {
 
 var ErrAPIKeyIsRequired = errors.New("api-key is required")
 
-func New(baseURL, apiKey, projectName, projectVersion string, projectTags []string, dtrackClientTimeoutSec, sbomUploadTimeoutSec, sbomUploadCheckIntervalSec float64) *Config {
+func New(baseURL, apiKey, projectName, projectVersion string, projectTags []string, parentName string, parentVersion string, dtrackClientTimeoutSec, sbomUploadTimeoutSec, sbomUploadCheckIntervalSec float64) *Config {
 	if len(projectTags) == 1 && strings.Contains(projectTags[0], ",") {
 		projectTags = strings.Split(projectTags[0], ",")
 	}
@@ -32,6 +35,8 @@ func New(baseURL, apiKey, projectName, projectVersion string, projectTags []stri
 		ProjectName:             projectName,
 		ProjectVersion:          projectVersion,
 		ProjectTags:             projectTags,
+		ParentName:              parentName,
+		ParentVersion:           parentVersion,
 		DtrackClientTimeout:     time.Duration(dtrackClientTimeoutSec) * time.Second,
 		SBOMUploadTimeout:       time.Duration(sbomUploadTimeoutSec) * time.Second,
 		SBOMUploadCheckInterval: time.Duration(sbomUploadCheckIntervalSec) * time.Second,
