@@ -42,6 +42,10 @@ spec:
                   name: {{ .Values.config.apiKeySecretName }}
             - name: DT_BASE_URL
               value: {{ .Values.config.baseUrl | quote }}
+            - name: DT_PARENT_PROJECT_NAME
+              value: {{ .Values.config.parentProjectName | quote }}
+            - name: DT_PARENT_PROJECT_VERSION
+              value: {{ .Values.config.parentProjectVersion | quote }}
             - name: DT_PROJECT_NAME
               value: {{ .Values.config.projectName | quote }}
             - name: DT_PROJECT_VERSION
