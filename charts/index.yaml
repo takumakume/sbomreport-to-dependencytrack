@@ -2,8 +2,19 @@ apiVersion: v1
 entries:
   sbomreport-to-dependencytrack:
   - apiVersion: v2
+    appVersion: 0.0.13
+    created: "2025-01-22T22:19:01.768667+09:00"
+    description: A server that receives webhooks from trivy-operator and sends SBOMReport
+      to Dependency Track
+    digest: 5ab8d9c77e584c1228f50db0ef7033685b7c82179136d6bf6887850be5be9b07
+    name: sbomreport-to-dependencytrack
+    type: application
+    urls:
+    - sbomreport-to-dependencytrack-0.0.13.tgz
+    version: 0.0.13
+  - apiVersion: v2
     appVersion: 0.0.10
-    created: "2023-12-06T16:52:58.245531+09:00"
+    created: "2025-01-22T22:19:01.768506+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: 0b846e6e91109a7ba31237ee3ce629cf3b8d8adb3f106e40584d85ab493ae7f4
@@ -14,7 +25,7 @@ entries:
     version: 0.0.10
   - apiVersion: v2
     appVersion: 0.0.9
-    created: "2023-12-06T16:52:58.249933+09:00"
+    created: "2025-01-22T22:19:01.770247+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: e57cbac4fa183c85faae1ecbb2eb7272d0f526d9a22546752aafa7b9678ad2d3
@@ -25,7 +36,7 @@ entries:
     version: 0.0.9
   - apiVersion: v2
     appVersion: 0.0.8
-    created: "2023-12-06T16:52:58.249555+09:00"
+    created: "2025-01-22T22:19:01.770074+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: fb986b15f5df7992d180b23438252bb8b5d574e67e178ec658ceb145455b0c91
@@ -36,7 +47,7 @@ entries:
     version: 0.0.8
   - apiVersion: v2
     appVersion: 0.0.7
-    created: "2023-12-06T16:52:58.249107+09:00"
+    created: "2025-01-22T22:19:01.769902+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: 253ea0b58c97f7b907ec913090b67970b2f39e79ef8420b6ebdc5a04c6f71dd6
@@ -47,7 +58,7 @@ entries:
     version: 0.0.7
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2023-12-06T16:52:58.248584+09:00"
+    created: "2025-01-22T22:19:01.769729+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: ee4f60a379d8ef9ce405977345dbe14bd598e94cca3d72bc8ab1b36688068d9e
@@ -58,7 +69,7 @@ entries:
     version: 0.0.6
   - apiVersion: v2
     appVersion: 0.0.5
-    created: "2023-12-06T16:52:58.247743+09:00"
+    created: "2025-01-22T22:19:01.769555+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: 693b7e029f1e30e36ce65ae7a02ac0a70839f7450b23d26ed13cbae53d7d2ab0
@@ -69,7 +80,7 @@ entries:
     version: 0.0.5
   - apiVersion: v2
     appVersion: 0.0.4
-    created: "2023-12-06T16:52:58.247218+09:00"
+    created: "2025-01-22T22:19:01.769382+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: cca505057081030feee4812509ad0986001f7c37c3514caafd4c8ab70baadfb6
@@ -80,7 +91,7 @@ entries:
     version: 0.0.4
   - apiVersion: v2
     appVersion: 0.0.3
-    created: "2023-12-06T16:52:58.246686+09:00"
+    created: "2025-01-22T22:19:01.769201+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: 9d9bc5fab1e9b574d4adb66335525b49c048ffc91292ea30351e1535aabdec69
@@ -91,7 +102,7 @@ entries:
     version: 0.0.3
   - apiVersion: v2
     appVersion: 0.0.2
-    created: "2023-12-06T16:52:58.246152+09:00"
+    created: "2025-01-22T22:19:01.769015+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: 43229b5436c7720a491b04e709c3fd4cb094011b6b6d3f55696dbb3d693af7ea
@@ -102,7 +113,7 @@ entries:
     version: 0.0.2
   - apiVersion: v2
     appVersion: 0.0.1
-    created: "2023-12-06T16:52:58.245134+09:00"
+    created: "2025-01-22T22:19:01.768163+09:00"
     description: A server that receives webhooks from trivy-operator and sends SBOMReport
       to Dependency Track
     digest: d780e90cca472b32042d230b94f73f4607fed70cf3f58357a13842fcea94285b
@@ -111,4 +122,4 @@ entries:
     urls:
     - sbomreport-to-dependencytrack-0.0.1.tgz
     version: 0.0.1
-generated: "2023-12-06T16:52:58.244392+09:00"
+generated: "2025-01-22T22:19:01.767656+09:00"
