@@ -11,6 +11,12 @@ config:
   # Dependency Track base URL
   baseUrl: "http://localhost:8081"
 
+  # Depdendency Track parent project name
+  parentProjectName: ""
+
+  # Dependency Track parent project version
+  parentProjectVersion: ""
+
   # Dependency Track project name template
   projectName: "[[.sbomReport.report.artifact.repository]]"
   
