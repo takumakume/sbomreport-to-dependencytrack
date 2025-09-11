@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "sbomreport-to-dependencytrack.fullname" . }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "sbomreport-to-dependencytrack.labels" . | nindent 4 }}
     {{- if .Values.deploymentLabels }}{{- toYaml .Values.deploymentLabels | nindent 4 }}{{- end }}

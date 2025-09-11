@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Namespace to deploy the resources (leave empty to use the current namespace)
+namespace: ""
+
 replicaCount: 1
 
 config:

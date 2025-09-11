@@ -2,6 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "sbomreport-to-dependencytrack.fullname" . }}
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- end }}
   labels:
     {{- include "sbomreport-to-dependencytrack.labels" . | nindent 4 }}
 spec:
