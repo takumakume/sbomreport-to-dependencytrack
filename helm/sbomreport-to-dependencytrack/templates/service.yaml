@@ -1,6 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if .Values.overrideNamespace }}
+  namespace: {{ .Values.overrideNamespace }}
+  {{- end }}
   name: {{ include "sbomreport-to-dependencytrack.fullname" . }}
   labels:
     {{- include "sbomreport-to-dependencytrack.labels" . | nindent 4 }}
