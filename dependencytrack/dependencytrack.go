@@ -13,6 +13,8 @@ import (
 type DependencyTrackClient interface {
 	UploadBOM(ctx context.Context, projectName, projectVersion string, parentName string, parentVersion string, bom []byte) error
 	AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error
+	DeactivateProject(ctx context.Context, projectName, projectVersion string) error
+	DeleteProject(ctx context.Context, projectName, projectVersion string) error
 }
 
 type DependencyTrack struct {
@@ -116,4 +118,33 @@ func (dt *DependencyTrack) AddTagsToProject(ctx context.Context, projectName, pr
 	}
 
 	return nil
+}
+
+func (dt *DependencyTrack) DeactivateProject(ctx context.Context, projectName, projectVersion string) error {
+	log.Printf("Deactivating project. project %s:%s", projectName, projectVersion)
+
+	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
+	if err != nil {
+		return err
+	}
+
+	project.Active = false
+
+	_, err = dt.Client.Project.Update(ctx, project)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (dt *DependencyTrack) DeleteProject(ctx context.Context, projectName, projectVersion string) error {
+	log.Printf("Deleting project. project %s:%s", projectName, projectVersion)
+
+	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
+	if err != nil {
+		return err
+	}
+
+	return dt.Client.Project.Delete(ctx, project.UUID)
 }

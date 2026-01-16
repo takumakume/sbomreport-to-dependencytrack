@@ -11,6 +11,8 @@ import (
 	tmpl "github.com/takumakume/sbomreport-to-dependencytrack/template"
 )
 
+var ErrUnknownSbomDeleteAction = errors.New("unknown sbomDeleteAction")
+
 type Uploader interface {
 	Run(ctx context.Context, input []byte) error
 }
@@ -21,7 +23,13 @@ type Upload struct {
 }
 
 func New(c *config.Config) (*Upload, error) {
-	dtrack, err := dependencytrack.New(c.BaseURL, c.APIKey, c.DtrackClientTimeout, c.SBOMUploadTimeout, c.SBOMUploadCheckInterval)
+	dtrack, err := dependencytrack.New(
+		c.BaseURL,
+		c.APIKey,
+		c.DtrackClientTimeout,
+		c.SBOMUploadTimeout,
+		c.SBOMUploadCheckInterval,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -40,10 +48,6 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 			return nil
 		}
 		return err
-	}
-
-	if !sbom.ISVerbUpdate() {
-		return errors.New("only support verb is update")
 	}
 
 	sbomMap, err := sbom.ToMap()
@@ -80,6 +84,20 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 	parentVersion, err := tpl.Render(u.config.ParentVersion)
 	if err != nil {
 		return err
+	}
+
+	if !sbom.ISVerbUpdate() {
+		switch u.config.SBOMDeleteAction {
+		case "ignore":
+			log.Printf("SKIP: SBOM deletion with 'ignore' action")
+			return nil
+		case "deactivate":
+			return u.dtrack.DeactivateProject(ctx, projectName, projectVersion)
+		case "delete":
+			return u.dtrack.DeleteProject(ctx, projectName, projectVersion)
+		default:
+			return ErrUnknownSbomDeleteAction
+		}
 	}
 
 	if err := u.dtrack.UploadBOM(ctx, projectName, projectVersion, parentName, parentVersion, sbom.BOM()); err != nil {

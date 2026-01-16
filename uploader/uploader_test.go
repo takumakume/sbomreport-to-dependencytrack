@@ -44,12 +44,19 @@ func TestUpload_Run(t *testing.T) {
 		projectTags    []string
 		err            error
 	}
+	type mockDeleteSBOM struct {
+		enableDeactivate bool
+		enableDelete     bool
+		projectName      string
+		projectVersion   string
+	}
 	testCases := []struct {
 		name                 string
 		config               *config.Config
 		input                []byte
 		mockUploadBOM        mockUploadBOM
 		mockAddTagsToProject mockAddTagsToProject
+		mockDeleteSBOM       mockDeleteSBOM
 		wantErr              bool
 	}{
 		{
@@ -92,21 +99,69 @@ func TestUpload_Run(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "delete verb is not supported",
+			name: "delete with action 'ignore' does nothing",
 			config: &config.Config{
-				BaseURL:        "http://localhost:8081",
-				APIKey:         "apiKey",
-				ProjectName:    "[[.sbomReport.report.artifact.repository]]",
-				ProjectVersion: "[[.sbomReport.report.artifact.tag]]",
-				ParentName:     "[[.sbomReport.metadata.namespace]]",
-				ParentVersion:  "[[.sbomReport.report.artifact.tag]]",
+				BaseURL:          "http://localhost:8081",
+				APIKey:           "apiKey",
+				ProjectName:      "[[.sbomReport.operatorObject.report.artifact.repository]]",
+				ProjectVersion:   "[[.sbomReport.operatorObject.report.artifact.tag]]",
+				ParentName:       "[[.sbomReport.operatorObject.metadata.namespace]]",
+				ParentVersion:    "[[.sbomReport.operatorObject.report.artifact.tag]]",
+				SBOMDeleteAction: "ignore",
 				ProjectTags: []string{
 					"test",
-					"kube_namespace:[[.sbomReport.metadata.namespace]]",
+					"kube_namespace:[[.sbomReport.operatorObject.metadata.namespace]]",
 				},
 			},
 			input:   sbomReportV1alpha1WithVerb,
-			wantErr: true,
+			wantErr: false,
+		},
+		{
+			name: "delete with action 'deactivate' works",
+			config: &config.Config{
+				BaseURL:          "http://localhost:8081",
+				APIKey:           "apiKey",
+				ProjectName:      "[[.sbomReport.operatorObject.report.artifact.repository]]",
+				ProjectVersion:   "[[.sbomReport.operatorObject.report.artifact.tag]]",
+				ParentName:       "[[.sbomReport.operatorObject.metadata.namespace]]",
+				ParentVersion:    "[[.sbomReport.operatorObject.report.artifact.tag]]",
+				SBOMDeleteAction: "deactivate",
+				ProjectTags: []string{
+					"test",
+					"kube_namespace:[[.sbomReport.operatorObject.metadata.namespace]]",
+				},
+			},
+			mockDeleteSBOM: mockDeleteSBOM{
+				enableDeactivate: true,
+				projectName:      "library/alpine",
+				projectVersion:   "latest",
+			},
+			input:   sbomReportV1alpha1WithVerb,
+			wantErr: false,
+		},
+		{
+			name: "delete with action 'delete' works",
+			config: &config.Config{
+				BaseURL:          "http://localhost:8081",
+				APIKey:           "apiKey",
+				ProjectName:      "[[.sbomReport.operatorObject.report.artifact.repository]]",
+				ProjectVersion:   "[[.sbomReport.operatorObject.report.artifact.tag]]",
+				ParentName:       "[[.sbomReport.operatorObject.metadata.namespace]]",
+				ParentVersion:    "[[.sbomReport.operatorObject.report.artifact.tag]]",
+				SBOMDeleteAction: "delete",
+				ProjectTags: []string{
+					"test",
+					"kube_namespace:[[.sbomReport.operatorObject.metadata.namespace]]",
+				},
+			},
+			mockDeleteSBOM: mockDeleteSBOM{
+				enableDeactivate: false,
+				enableDelete:     true,
+				projectName:      "library/alpine",
+				projectVersion:   "latest",
+			},
+			input:   sbomReportV1alpha1WithVerb,
+			wantErr: false,
 		},
 		{
 			name: "no tags",
@@ -141,10 +196,24 @@ func TestUpload_Run(t *testing.T) {
 
 	for _, tc := range testCases {
 		if tc.mockUploadBOM.enable {
-			mockDTrack.EXPECT().UploadBOM(ctx, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, tc.mockUploadBOM.parentName, tc.mockUploadBOM.parentVersion, gomock.Any()).Return(tc.mockUploadBOM.err)
+			mockDTrack.EXPECT().
+				UploadBOM(ctx, tc.mockUploadBOM.projectName, tc.mockUploadBOM.projectVersion, tc.mockUploadBOM.parentName, tc.mockUploadBOM.parentVersion, gomock.Any()).
+				Return(tc.mockUploadBOM.err)
 		}
 		if tc.mockAddTagsToProject.enable {
-			mockDTrack.EXPECT().AddTagsToProject(ctx, tc.mockAddTagsToProject.projectName, tc.mockAddTagsToProject.projectVersion, tc.mockAddTagsToProject.projectTags).Return(tc.mockAddTagsToProject.err)
+			mockDTrack.EXPECT().
+				AddTagsToProject(ctx, tc.mockAddTagsToProject.projectName, tc.mockAddTagsToProject.projectVersion, tc.mockAddTagsToProject.projectTags).
+				Return(tc.mockAddTagsToProject.err)
+		}
+		if tc.mockDeleteSBOM.enableDeactivate {
+			mockDTrack.EXPECT().
+				DeactivateProject(ctx, tc.mockDeleteSBOM.projectName, tc.mockDeleteSBOM.projectVersion).
+				Return(tc.mockUploadBOM.err)
+		}
+		if tc.mockDeleteSBOM.enableDelete {
+			mockDTrack.EXPECT().
+				DeleteProject(ctx, tc.mockDeleteSBOM.projectName, tc.mockDeleteSBOM.projectVersion).
+				Return(tc.mockUploadBOM.err)
 		}
 
 		u := &Upload{

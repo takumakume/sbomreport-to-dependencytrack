@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"slices"
 	"strings"
 	"time"
 )
@@ -20,11 +21,22 @@ type Config struct {
 	DtrackClientTimeout     time.Duration
 	SBOMUploadTimeout       time.Duration
 	SBOMUploadCheckInterval time.Duration
+	SBOMDeleteAction        string
 }
 
-var ErrAPIKeyIsRequired = errors.New("api-key is required")
+var (
+	ErrAPIKeyIsRequired        = errors.New("api-key is required")
+	ErrInvalidSBOMDeleteAction = errors.New("invalid sbom-delete-action")
+)
 
-func New(baseURL, apiKey, projectName, projectVersion string, projectTags []string, parentName string, parentVersion string, dtrackClientTimeoutSec, sbomUploadTimeoutSec, sbomUploadCheckIntervalSec float64) *Config {
+func New(
+	baseURL, apiKey, projectName, projectVersion string,
+	projectTags []string,
+	parentName string,
+	parentVersion string,
+	dtrackClientTimeoutSec, sbomUploadTimeoutSec, sbomUploadCheckIntervalSec float64,
+	sbomDeleteAction string,
+) *Config {
 	if len(projectTags) == 1 && strings.Contains(projectTags[0], ",") {
 		projectTags = strings.Split(projectTags[0], ",")
 	}
@@ -40,12 +52,17 @@ func New(baseURL, apiKey, projectName, projectVersion string, projectTags []stri
 		DtrackClientTimeout:     time.Duration(dtrackClientTimeoutSec) * time.Second,
 		SBOMUploadTimeout:       time.Duration(sbomUploadTimeoutSec) * time.Second,
 		SBOMUploadCheckInterval: time.Duration(sbomUploadCheckIntervalSec) * time.Second,
+		SBOMDeleteAction:        sbomDeleteAction,
 	}
 }
 
 func (c *Config) Validate() error {
 	if c.APIKey == "" {
 		return ErrAPIKeyIsRequired
+	}
+
+	if !slices.Contains([]string{"ignore", "delete", "deactivate"}, c.SBOMDeleteAction) {
+		return ErrInvalidSBOMDeleteAction
 	}
 
 	return nil

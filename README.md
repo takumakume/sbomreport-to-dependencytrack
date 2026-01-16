@@ -56,17 +56,26 @@ Admin > Access Management > Teams
 
 Permissions:
 
-  * BOM_UPLOAD 
-  * PORTFOLIO_MANAGEMENT 
-  * PROJECT_CREATION_UPLOAD 
-  * VIEW_PORTFOLIO
+* BOM_UPLOAD
+* PORTFOLIO_MANAGEMENT
+* PROJECT_CREATION_UPLOAD
+* VIEW_PORTFOLIO
+
+## Deletion of SBOMs
+
+Trivy Operator has the ability to send a webhook on SBOM deletion. As the wanted action on deletion depends on the project requirements this behavior is disabled by default.
+To enable it, activate `webhookSendDeletedReports` in Trivy Operator. Afterwards the config value `--sbom-delete-action (DT_SBOM_DELETE_ACTION)` might be set.
+Currently supported values are `ignore`, `delete`, or `deactivate`.
+
+> [!IMPORTANT]
+> As soon as webhookSendDeletedReports is set, the format of the incoming sbomReports changes. E.g. `DT_PROJECT_NAME` and `DT_PROJECT_VERSION` have to be changed from `[[.sbomReport.report.artifact...]]` to `[[.sbomReport.__operatorObject__.report.artifact...]]`
 
 ## case1: command line tool to receive JSON of SBOM Report from stdin
 
 install command
 
 ```shell
-$ go install github.com/takumakume/sbomreport-to-dependencytrack@main
+go install github.com/takumakume/sbomreport-to-dependencytrack@main
 ```
 
 run command
@@ -117,7 +126,7 @@ $ docker run -p 8080:8080 \
 ```shell
 helm repo add sbomreport-to-dependencytrack https://takumakume.github.io/sbomreport-to-dependencytrack/charts
 helm repo update
-helm install sbomreport-to-dependencytrack/sbomreport-to-dependencytrack
+helm install sbomreport-to-dependencytrack sbomreport-to-dependencytrack/sbomreport-to-dependencytrack
 
 # render manifests
 helm template sbomreport-to-dependencytrack/sbomreport-to-dependencytrack
@@ -145,7 +154,7 @@ config:
 
 register trivy-operator webhook
 
-ref: https://aquasecurity.github.io/trivy-operator/latest/tutorials/integrations/webhook/
+ref: <https://aquasecurity.github.io/trivy-operator/latest/tutorials/integrations/webhook/>
 
 e.g.
 

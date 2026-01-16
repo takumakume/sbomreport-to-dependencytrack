@@ -26,6 +26,9 @@ config:
   # Dependency Track project tag template (comma separated)
   projectTags: ""
 
+  # Action on SBOM Deletion, might either be ignore,deactivate or delete
+  sbomDeleteAction: ignore
+
   # Dependency Track client timeout seconds
   dtrackClientTimeout:
 

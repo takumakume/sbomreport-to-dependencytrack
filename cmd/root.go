@@ -74,6 +74,7 @@ Dependency-Track APK key permissions required:
 			viper.GetFloat64("dtrack-client-timeout"),
 			viper.GetFloat64("sbom-upload-timeout-sec"),
 			viper.GetFloat64("sbom-upload-check-interval-sec"),
+			viper.GetString("sbom-delete-action"),
 		)
 		if err := c.Validate(); err != nil {
 			return err
@@ -110,6 +111,7 @@ func init() {
 	flags.Float64P("dtrack-client-timeout", "", 10, "Dependency Track client timeout seconds")
 	flags.Float64P("sbom-upload-timeout-sec", "", 30, "Seconds to timeout waiting for completion of SBOM upload of Dependency Track")
 	flags.Float64P("sbom-upload-check-interval-sec", "", 1, "Interval seconds to check for completion of SBOM upload of Dependency Track")
+	flags.StringP("sbom-delete-action", "", "ignore", "Action to perform when a SBOMReport deletion is reported via webhook. (ignore|deactivate|delete) (env: DT_SBOM_DELETE_ACTION)")
 
 	viper.BindPFlag("base-url", flags.Lookup("base-url"))
 	viper.BindPFlag("api-key", flags.Lookup("api-key"))
@@ -121,6 +123,7 @@ func init() {
 	viper.BindPFlag("dtrack-client-timeout", flags.Lookup("dtrack-client-timeout"))
 	viper.BindPFlag("sbom-upload-timeout-sec", flags.Lookup("sbom-upload-timeout-sec"))
 	viper.BindPFlag("sbom-upload-check-interval-sec", flags.Lookup("sbom-upload-check-interval-sec"))
+	viper.BindPFlag("sbom-delete-action", flags.Lookup("sbom-delete-action"))
 }
 
 func Execute() error {

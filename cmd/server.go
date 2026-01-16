@@ -28,6 +28,7 @@ var serverCmd = &cobra.Command{
 			viper.GetFloat64("dtrack-client-timeout-sec"),
 			viper.GetFloat64("sbom-upload-timeout-sec"),
 			viper.GetFloat64("sbom-upload-check-interval-sec"),
+			viper.GetString("sbom-delete-action"),
 		)
 		if err := c.Validate(); err != nil {
 			return err

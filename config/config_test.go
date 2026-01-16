@@ -18,6 +18,7 @@ func TestNew(t *testing.T) {
 		dtrackClientTimeoutSec     float64
 		sbomUploadTimeoutSec       float64
 		sbomUploadCheckIntervalSec float64
+		sbomDeleteAction           string
 	}
 	tests := []struct {
 		name string
@@ -37,6 +38,7 @@ func TestNew(t *testing.T) {
 				dtrackClientTimeoutSec:     10,
 				sbomUploadTimeoutSec:       30,
 				sbomUploadCheckIntervalSec: 1,
+				sbomDeleteAction:           "ignore",
 			},
 			want: &Config{
 				BaseURL:                 "https://example.com",
@@ -49,6 +51,7 @@ func TestNew(t *testing.T) {
 				DtrackClientTimeout:     time.Duration(10) * time.Second,
 				SBOMUploadTimeout:       time.Duration(30) * time.Second,
 				SBOMUploadCheckInterval: time.Duration(1) * time.Second,
+				SBOMDeleteAction:        "ignore",
 			},
 		},
 		{
@@ -64,6 +67,7 @@ func TestNew(t *testing.T) {
 				dtrackClientTimeoutSec:     10,
 				sbomUploadTimeoutSec:       30,
 				sbomUploadCheckIntervalSec: 1,
+				sbomDeleteAction:           "ignore",
 			},
 			want: &Config{
 				BaseURL:                 "https://example.com",
@@ -76,12 +80,16 @@ func TestNew(t *testing.T) {
 				DtrackClientTimeout:     time.Duration(10) * time.Second,
 				SBOMUploadTimeout:       time.Duration(30) * time.Second,
 				SBOMUploadCheckInterval: time.Duration(1) * time.Second,
+				SBOMDeleteAction:        "ignore",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := New(tt.args.baseURL, tt.args.apiKey, tt.args.projectName, tt.args.projectVersion, tt.args.projectTags, tt.args.parentName, tt.args.parentVersion, tt.args.dtrackClientTimeoutSec, tt.args.sbomUploadTimeoutSec, tt.args.sbomUploadCheckIntervalSec); !reflect.DeepEqual(got, tt.want) {
+			if got := New(tt.args.baseURL, tt.args.apiKey, tt.args.projectName, tt.args.projectVersion, tt.args.projectTags, tt.args.parentName, tt.args.parentVersion, tt.args.dtrackClientTimeoutSec, tt.args.sbomUploadTimeoutSec, tt.args.sbomUploadCheckIntervalSec, tt.args.sbomDeleteAction); !reflect.DeepEqual(
+				got,
+				tt.want,
+			) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}
 		})
@@ -90,13 +98,14 @@ func TestNew(t *testing.T) {
 
 func TestConfig_Validate(t *testing.T) {
 	type fields struct {
-		BaseURL        string
-		APIKey         string
-		ProjectName    string
-		ProjectVersion string
-		ProjectTags    []string
-		ParentName     string `json:"parentName,omitempty"`
-		ParentVersion  string `json:"parentVersion,omitempty"`
+		BaseURL          string
+		APIKey           string
+		ProjectName      string
+		ProjectVersion   string
+		ProjectTags      []string
+		ParentName       string `json:"parentName,omitempty"`
+		ParentVersion    string `json:"parentVersion,omitempty"`
+		SBOMDeleteAction string
 	}
 	tests := []struct {
 		name    string
@@ -106,25 +115,41 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				BaseURL:        "https://example.com",
-				APIKey:         "12345",
-				ProjectName:    "test-project",
-				ProjectVersion: "1.0.0",
-				ProjectTags:    []string{"tag1", "tag2"},
-				ParentName:     "TEST",
-				ParentVersion:  "1.0.0",
+				BaseURL:          "https://example.com",
+				APIKey:           "12345",
+				ProjectName:      "test-project",
+				ProjectVersion:   "1.0.0",
+				ProjectTags:      []string{"tag1", "tag2"},
+				ParentName:       "TEST",
+				ParentVersion:    "1.0.0",
+				SBOMDeleteAction: "ignore",
 			},
 			wantErr: false,
 		},
 		{
 			name: "APIKey no set",
 			fields: fields{
-				BaseURL:        "https://example.com",
-				ProjectName:    "test-project",
-				ProjectVersion: "1.0.0",
-				ProjectTags:    []string{"tag1", "tag2"},
-				ParentName:     "TEST",
-				ParentVersion:  "1.0.0",
+				BaseURL:          "https://example.com",
+				ProjectName:      "test-project",
+				ProjectVersion:   "1.0.0",
+				ProjectTags:      []string{"tag1", "tag2"},
+				ParentName:       "TEST",
+				ParentVersion:    "1.0.0",
+				SBOMDeleteAction: "ignore",
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid SBOMDeleteAction",
+			fields: fields{
+				BaseURL:          "https://example.com",
+				APIKey:           "12345",
+				ProjectName:      "test-project",
+				ProjectVersion:   "1.0.0",
+				ProjectTags:      []string{"tag1", "tag2"},
+				ParentName:       "TEST",
+				ParentVersion:    "1.0.0",
+				SBOMDeleteAction: "foo",
 			},
 			wantErr: true,
 		},
@@ -132,13 +157,14 @@ func TestConfig_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
-				BaseURL:        tt.fields.BaseURL,
-				APIKey:         tt.fields.APIKey,
-				ProjectName:    tt.fields.ProjectName,
-				ProjectVersion: tt.fields.ProjectVersion,
-				ProjectTags:    tt.fields.ProjectTags,
-				ParentName:     tt.fields.ParentName,
-				ParentVersion:  tt.fields.ParentVersion,
+				BaseURL:          tt.fields.BaseURL,
+				APIKey:           tt.fields.APIKey,
+				ProjectName:      tt.fields.ProjectName,
+				ProjectVersion:   tt.fields.ProjectVersion,
+				ProjectTags:      tt.fields.ProjectTags,
+				ParentName:       tt.fields.ParentName,
+				ParentVersion:    tt.fields.ParentVersion,
+				SBOMDeleteAction: tt.fields.SBOMDeleteAction,
 			}
 			if err := c.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Config.Validate() error = %v, wantErr %v", err, tt.wantErr)
