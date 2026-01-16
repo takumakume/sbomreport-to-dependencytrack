@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -101,29 +102,61 @@ func init() {
 
 	flags := rootCmd.PersistentFlags()
 
-	flags.StringP("base-url", "u", "http://127.0.0.1:8081/", "Dependency Track base URL (env: DT_BASE_URL)")
+	flags.StringP(
+		"base-url",
+		"u",
+		"http://127.0.0.1:8081/",
+		"Dependency Track base URL (env: DT_BASE_URL)",
+	)
 	flags.StringP("api-key", "k", "", "Dependency Track API key (env: DT_API_KEY)")
-	flags.StringP("project-name", "", "[[.sbomReport.report.artifact.repository]]", "Project name template (env: DT_PROJECT_NAME)")
-	flags.StringP("project-version", "", "[[.sbomReport.report.artifact.tag]]", "Project version template (env: DT_PROJECT_VERSION)")
-	flags.StringSliceP("project-tags", "t", []string{}, "Project tags template (env: DT_PROJECT_TAGS (comma separated))")
+	flags.StringP(
+		"project-name",
+		"",
+		"[[.sbomReport.report.artifact.repository]]",
+		"Project name template (env: DT_PROJECT_NAME)",
+	)
+	flags.StringP(
+		"project-version",
+		"",
+		"[[.sbomReport.report.artifact.tag]]",
+		"Project version template (env: DT_PROJECT_VERSION)",
+	)
+	flags.StringSliceP(
+		"project-tags",
+		"t",
+		[]string{},
+		"Project tags template (env: DT_PROJECT_TAGS (comma separated))",
+	)
 	flags.StringP("parent-name", "", "", "Parent project name template (env: DT_PARENT_NAME)")
-	flags.StringP("parent-version", "", "", "Parent project version template (env: DT_PARENT_VERSION)")
+	flags.StringP(
+		"parent-version",
+		"",
+		"",
+		"Parent project version template (env: DT_PARENT_VERSION)",
+	)
 	flags.Float64P("dtrack-client-timeout", "", 10, "Dependency Track client timeout seconds")
-	flags.Float64P("sbom-upload-timeout-sec", "", 30, "Seconds to timeout waiting for completion of SBOM upload of Dependency Track")
-	flags.Float64P("sbom-upload-check-interval-sec", "", 1, "Interval seconds to check for completion of SBOM upload of Dependency Track")
-	flags.StringP("sbom-delete-action", "", "ignore", "Action to perform when a SBOMReport deletion is reported via webhook. (ignore|deactivate|delete) (env: DT_SBOM_DELETE_ACTION)")
+	flags.Float64P(
+		"sbom-upload-timeout-sec",
+		"",
+		30,
+		"Seconds to timeout waiting for completion of SBOM upload of Dependency Track",
+	)
+	flags.Float64P(
+		"sbom-upload-check-interval-sec",
+		"",
+		1,
+		"Interval seconds to check for completion of SBOM upload of Dependency Track",
+	)
+	flags.StringP(
+		"sbom-delete-action",
+		"",
+		"ignore",
+		"Action to perform when a SBOMReport deletion is reported via webhook. (ignore|deactivate|delete) (env: DT_SBOM_DELETE_ACTION)",
+	)
 
-	viper.BindPFlag("base-url", flags.Lookup("base-url"))
-	viper.BindPFlag("api-key", flags.Lookup("api-key"))
-	viper.BindPFlag("project-name", flags.Lookup("project-name"))
-	viper.BindPFlag("project-version", flags.Lookup("project-version"))
-	viper.BindPFlag("project-tags", flags.Lookup("project-tags"))
-	viper.BindPFlag("parent-name", flags.Lookup("parent-name"))
-	viper.BindPFlag("parent-version", flags.Lookup("parent-version"))
-	viper.BindPFlag("dtrack-client-timeout", flags.Lookup("dtrack-client-timeout"))
-	viper.BindPFlag("sbom-upload-timeout-sec", flags.Lookup("sbom-upload-timeout-sec"))
-	viper.BindPFlag("sbom-upload-check-interval-sec", flags.Lookup("sbom-upload-check-interval-sec"))
-	viper.BindPFlag("sbom-delete-action", flags.Lookup("sbom-delete-action"))
+	if err := viper.BindPFlags(flags); err != nil {
+		panic(fmt.Errorf("bind flags to viper: %w", err))
+	}
 }
 
 func Execute() error {

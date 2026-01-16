@@ -19,4 +19,9 @@ jobs:
       with:
         go-version: ${{ env.go-version }}
     - run: make go-deps
+    - run: make mock
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.6
     - run: make test

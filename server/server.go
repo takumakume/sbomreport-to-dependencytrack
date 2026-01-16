@@ -42,7 +42,9 @@ func (s *Server) Run() error {
 func healthzFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("DEBUG: server.healthzFunc: ok")
-		w.Write([]byte("ok"))
+		if _, err := w.Write([]byte("ok")); err != nil {
+			log.Printf("DEBUG: server.healthzFunc: write failed: %v", err)
+		}
 	}
 }
 
@@ -69,6 +71,8 @@ func uploadFunc(ctx context.Context, u uploader.Uploader) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.Write([]byte("ok"))
+		if _, err := w.Write([]byte("ok")); err != nil {
+			log.Printf("DEBUG: server.upload: write failed: %v", err)
+		}
 	}
 }
