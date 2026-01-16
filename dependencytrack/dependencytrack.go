@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	dtrack "github.com/DependencyTrack/client-go"
@@ -57,7 +57,7 @@ func (dt *DependencyTrack) UploadBOM(
 	parentVersion string,
 	bom []byte,
 ) error {
-	log.Printf("Uploading BOM: project %s:%s", projectName, projectVersion)
+	slog.Info("Uploading BOM", "project", projectName, "version", projectVersion)
 
 	uploadToken, err := dt.Client.BOM.Upload(ctx, dtrack.BOMUploadRequest{
 		ProjectName:    projectName,
@@ -71,10 +71,13 @@ func (dt *DependencyTrack) UploadBOM(
 		return err
 	}
 
-	log.Printf(
-		"Polling completion of upload BOM: project %s:%s token %s",
+	slog.Info(
+		"Polling completion of upload BOM",
+		"project",
 		projectName,
+		"version",
 		projectVersion,
+		"uploadToken",
 		uploadToken,
 	)
 
@@ -117,19 +120,26 @@ func (dt *DependencyTrack) UploadBOM(
 
 	select {
 	case <-doneChan:
-		log.Printf(
-			"BOM upload completed: project %s:%s token %s",
+		slog.Info(
+			"BOM upload completed",
+			"project",
 			projectName,
+			"version",
 			projectVersion,
+			"uploadToken",
 			uploadToken,
 		)
 		break
 	case err := <-errChan:
-		log.Printf(
-			"Error: BOM upload failed: project %s:%s token %s: %s",
+		slog.Error(
+			"BOM upload failed",
+			"project",
 			projectName,
+			"version",
 			projectVersion,
+			"uploadToken",
 			uploadToken,
+			"error",
 			err,
 		)
 		return err
@@ -143,7 +153,13 @@ func (dt *DependencyTrack) AddTagsToProject(
 	projectName, projectVersion string,
 	tags []string,
 ) error {
-	log.Printf("Adding tags to project. project %s:%s tags %v", projectName, projectVersion, tags)
+	slog.Info("Adding tags to project",
+		"project",
+		projectName,
+		"version",
+		projectVersion,
+		"tags",
+		tags)
 
 	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
 	if err != nil {
@@ -166,7 +182,11 @@ func (dt *DependencyTrack) DeactivateProject(
 	ctx context.Context,
 	projectName, projectVersion string,
 ) error {
-	log.Printf("Deactivating project. project %s:%s", projectName, projectVersion)
+	slog.Info("Deactivating project",
+		"project",
+		projectName,
+		"version",
+		projectVersion)
 
 	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
 	if err != nil {
@@ -187,7 +207,11 @@ func (dt *DependencyTrack) DeleteProject(
 	ctx context.Context,
 	projectName, projectVersion string,
 ) error {
-	log.Printf("Deleting project. project %s:%s", projectName, projectVersion)
+	slog.Info("Deleting project",
+		"project",
+		projectName,
+		"version",
+		projectVersion)
 
 	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
 	if err != nil {

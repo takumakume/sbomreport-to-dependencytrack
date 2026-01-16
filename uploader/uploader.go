@@ -3,7 +3,7 @@ package uploader
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 
 	"github.com/takumakume/sbomreport-to-dependencytrack/config"
 	"github.com/takumakume/sbomreport-to-dependencytrack/dependencytrack"
@@ -44,7 +44,7 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 	sbom, err := sbomreport.New(input)
 	if err != nil {
 		if sbomreport.IsErrNotSBOMReport(err) {
-			log.Printf("SKIP: %s", err)
+			slog.Info("Skipping", "error", err)
 			return nil
 		}
 		return err
@@ -89,7 +89,7 @@ func (u *Upload) Run(ctx context.Context, input []byte) error {
 	if !sbom.ISVerbUpdate() {
 		switch u.config.SBOMDeleteAction {
 		case "ignore":
-			log.Printf("SKIP: SBOM deletion with 'ignore' action")
+			slog.Debug("SKIP: SBOM deletion with 'ignore' action")
 			return nil
 		case "deactivate":
 			return u.dtrack.DeactivateProject(ctx, projectName, projectVersion)

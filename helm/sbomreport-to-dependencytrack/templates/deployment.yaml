@@ -57,6 +57,8 @@ spec:
               value: {{ .Values.config.projectTags | quote }}
             - name: DT_SBOM_DELETE_ACTION
               value: {{ .Values.config.sbomDeleteAction | quote }}
+            - name: DT_LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
             {{- with .Values.config.dtrackClientTimeout }}
             - name: DT_DTRACK_CLIENT_TIMEOUT
               value: {{ . | quote }}

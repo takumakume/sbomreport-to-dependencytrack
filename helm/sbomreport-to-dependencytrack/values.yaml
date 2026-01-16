@@ -11,6 +11,9 @@ config:
   # Dependency Track base URL
   baseUrl: "http://localhost:8081"
 
+  # Log Level for the application
+  logLevel: info
+
   # Depdendency Track parent project name
   parentProjectName: ""
 

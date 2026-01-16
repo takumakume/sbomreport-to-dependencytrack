@@ -61,6 +61,9 @@ Dependency-Track APK key permissions required:
   * PROJECT_CREATION_UPLOAD 
   * VIEW_PORTFOLIO 
 `,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return config.SetupLogging(viper.GetString("log-level"))
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
@@ -152,6 +155,12 @@ func init() {
 		"",
 		"ignore",
 		"Action to perform when a SBOMReport deletion is reported via webhook. (ignore|deactivate|delete) (env: DT_SBOM_DELETE_ACTION)",
+	)
+	flags.StringP(
+		"log-level",
+		"",
+		"info",
+		"Log level (debug|info|warn|error) (env: DT_LOG_LEVEL)",
 	)
 
 	if err := viper.BindPFlags(flags); err != nil {
