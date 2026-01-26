@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/takumakume/sbomreport-to-dependencytrack/uploader"
@@ -32,7 +32,7 @@ func (s *Server) Run() error {
 	http.HandleFunc("/healthz", healthzFunc())
 
 	addr := fmt.Sprintf(":%d", s.port)
-	log.Printf("Listening on %s\n", addr)
+	slog.Info("Server starting", "address", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		return err
 	}
@@ -41,34 +41,38 @@ func (s *Server) Run() error {
 
 func healthzFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("DEBUG: server.healthzFunc: ok")
-		w.Write([]byte("ok"))
+		slog.Debug("server.healthzFunc: ok")
+		if _, err := w.Write([]byte("ok")); err != nil {
+			slog.Error("server.healthzFunc: write failed", "error", err)
+		}
 	}
 }
 
 func uploadFunc(ctx context.Context, u uploader.Uploader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			log.Printf("ERROR: server.uploadFunc: method not allowed: %s\n", r.Method)
+			slog.Error("server.uploadFunc: method not allowed", "method", r.Method)
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
 		if r.Body == nil {
-			log.Println("ERROR: server.uploadFunc: request body is empty")
+			slog.Error("server.uploadFunc: request body is empty")
 			http.Error(w, "request body is empty", http.StatusBadRequest)
 			return
 		}
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Printf("ERROR: server.uploadFunc: request body read failed: %s\n", err.Error())
+			slog.Error("server.uploadFunc: request body read failed", "error", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err := u.Run(ctx, body); err != nil {
-			log.Printf("ERROR: server.uploadFunc: upload failed: %s\n", err.Error())
+			slog.Error("server.uploadFunc: upload failed", "error", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.Write([]byte("ok"))
+		if _, err := w.Write([]byte("ok")); err != nil {
+			slog.Error("server.upload: write failed", "error", err)
+		}
 	}
 }

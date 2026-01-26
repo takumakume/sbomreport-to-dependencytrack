@@ -4,15 +4,23 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	dtrack "github.com/DependencyTrack/client-go"
 )
 
 type DependencyTrackClient interface {
-	UploadBOM(ctx context.Context, projectName, projectVersion string, parentName string, parentVersion string, bom []byte) error
+	UploadBOM(
+		ctx context.Context,
+		projectName, projectVersion string,
+		parentName string,
+		parentVersion string,
+		bom []byte,
+	) error
 	AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error
+	DeactivateProject(ctx context.Context, projectName, projectVersion string) error
+	DeleteProject(ctx context.Context, projectName, projectVersion string) error
 }
 
 type DependencyTrack struct {
@@ -22,8 +30,15 @@ type DependencyTrack struct {
 	SBOMUploadCheckInterval time.Duration
 }
 
-func New(baseURL, apiKey string, dtrackClientTimeout, sbomUploadTimeout, sbomUploadCheckInterval time.Duration) (*DependencyTrack, error) {
-	client, err := dtrack.NewClient(baseURL, dtrack.WithAPIKey(apiKey), dtrack.WithTimeout(dtrackClientTimeout))
+func New(
+	baseURL, apiKey string,
+	dtrackClientTimeout, sbomUploadTimeout, sbomUploadCheckInterval time.Duration,
+) (*DependencyTrack, error) {
+	client, err := dtrack.NewClient(
+		baseURL,
+		dtrack.WithAPIKey(apiKey),
+		dtrack.WithTimeout(dtrackClientTimeout),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +50,14 @@ func New(baseURL, apiKey string, dtrackClientTimeout, sbomUploadTimeout, sbomUpl
 	}, nil
 }
 
-func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVersion string, parentName string, parentVersion string, bom []byte) error {
-	log.Printf("Uploading BOM: project %s:%s", projectName, projectVersion)
+func (dt *DependencyTrack) UploadBOM(
+	ctx context.Context,
+	projectName, projectVersion string,
+	parentName string,
+	parentVersion string,
+	bom []byte,
+) error {
+	slog.Info("Uploading BOM", "project", projectName, "version", projectVersion)
 
 	uploadToken, err := dt.Client.BOM.Upload(ctx, dtrack.BOMUploadRequest{
 		ProjectName:    projectName,
@@ -50,7 +71,15 @@ func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVe
 		return err
 	}
 
-	log.Printf("Polling completion of upload BOM: project %s:%s token %s", projectName, projectVersion, uploadToken)
+	slog.Info(
+		"Polling completion of upload BOM",
+		"project",
+		projectName,
+		"version",
+		projectVersion,
+		"uploadToken",
+		uploadToken,
+	)
 
 	doneChan := make(chan struct{})
 	errChan := make(chan error)
@@ -67,7 +96,10 @@ func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVe
 		for {
 			select {
 			case <-ticker.C:
-				processing, err := dt.Client.BOM.IsBeingProcessed(ctx, uploadToken)
+				processing, err := dt.Client.Event.IsBeingProcessed(
+					ctx,
+					dtrack.EventToken(uploadToken),
+				)
 				if err != nil {
 					errChan <- err
 					return
@@ -88,18 +120,46 @@ func (dt *DependencyTrack) UploadBOM(ctx context.Context, projectName, projectVe
 
 	select {
 	case <-doneChan:
-		log.Printf("BOM upload completed: project %s:%s token %s", projectName, projectVersion, uploadToken)
+		slog.Info(
+			"BOM upload completed",
+			"project",
+			projectName,
+			"version",
+			projectVersion,
+			"uploadToken",
+			uploadToken,
+		)
 		break
 	case err := <-errChan:
-		log.Printf("Error: BOM upload failed: project %s:%s token %s: %s", projectName, projectVersion, uploadToken, err)
+		slog.Error(
+			"BOM upload failed",
+			"project",
+			projectName,
+			"version",
+			projectVersion,
+			"uploadToken",
+			uploadToken,
+			"error",
+			err,
+		)
 		return err
 	}
 
 	return nil
 }
 
-func (dt *DependencyTrack) AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error {
-	log.Printf("Adding tags to project. project %s:%s tags %v", projectName, projectVersion, tags)
+func (dt *DependencyTrack) AddTagsToProject(
+	ctx context.Context,
+	projectName, projectVersion string,
+	tags []string,
+) error {
+	slog.Info("Adding tags to project",
+		"project",
+		projectName,
+		"version",
+		projectVersion,
+		"tags",
+		tags)
 
 	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
 	if err != nil {
@@ -116,4 +176,47 @@ func (dt *DependencyTrack) AddTagsToProject(ctx context.Context, projectName, pr
 	}
 
 	return nil
+}
+
+func (dt *DependencyTrack) DeactivateProject(
+	ctx context.Context,
+	projectName, projectVersion string,
+) error {
+	slog.Info("Deactivating project",
+		"project",
+		projectName,
+		"version",
+		projectVersion)
+
+	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
+	if err != nil {
+		return err
+	}
+
+	project.Active = false
+
+	_, err = dt.Client.Project.Update(ctx, project)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (dt *DependencyTrack) DeleteProject(
+	ctx context.Context,
+	projectName, projectVersion string,
+) error {
+	slog.Info("Deleting project",
+		"project",
+		projectName,
+		"version",
+		projectVersion)
+
+	project, err := dt.Client.Project.Lookup(ctx, projectName, projectVersion)
+	if err != nil {
+		return err
+	}
+
+	return dt.Client.Project.Delete(ctx, project.UUID)
 }

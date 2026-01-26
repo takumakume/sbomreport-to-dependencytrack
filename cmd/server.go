@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -28,6 +29,7 @@ var serverCmd = &cobra.Command{
 			viper.GetFloat64("dtrack-client-timeout-sec"),
 			viper.GetFloat64("sbom-upload-timeout-sec"),
 			viper.GetFloat64("sbom-upload-check-interval-sec"),
+			viper.GetString("sbom-delete-action"),
 		)
 		if err := c.Validate(); err != nil {
 			return err
@@ -48,8 +50,16 @@ func init() {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	flags := serverCmd.Flags()
-	flags.IntP("port", "p", 8080, "Port number to listen http to receive webhook from trivy-operator (env: DT_PORT)")
-	viper.BindPFlag("port", flags.Lookup("port"))
+	flags.IntP(
+		"port",
+		"p",
+		8080,
+		"Port number to listen http to receive webhook from trivy-operator (env: DT_PORT)",
+	)
+	err := viper.BindPFlag("port", flags.Lookup("port"))
+	if err != nil {
+		panic(fmt.Errorf("bind viper server flags: %w", err))
+	}
 
 	rootCmd.AddCommand(serverCmd)
 }

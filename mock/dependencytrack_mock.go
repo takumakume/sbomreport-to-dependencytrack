@@ -48,6 +48,34 @@ func (mr *MockDependencyTrackClientMockRecorder) AddTagsToProject(ctx, projectNa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTagsToProject", reflect.TypeOf((*MockDependencyTrackClient)(nil).AddTagsToProject), ctx, projectName, projectVersion, tags)
 }
 
+// DeactivateProject mocks base method.
+func (m *MockDependencyTrackClient) DeactivateProject(ctx context.Context, projectName, projectVersion string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeactivateProject", ctx, projectName, projectVersion)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeactivateProject indicates an expected call of DeactivateProject.
+func (mr *MockDependencyTrackClientMockRecorder) DeactivateProject(ctx, projectName, projectVersion interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeactivateProject", reflect.TypeOf((*MockDependencyTrackClient)(nil).DeactivateProject), ctx, projectName, projectVersion)
+}
+
+// DeleteProject mocks base method.
+func (m *MockDependencyTrackClient) DeleteProject(ctx context.Context, projectName, projectVersion string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteProject", ctx, projectName, projectVersion)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteProject indicates an expected call of DeleteProject.
+func (mr *MockDependencyTrackClientMockRecorder) DeleteProject(ctx, projectName, projectVersion interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProject", reflect.TypeOf((*MockDependencyTrackClient)(nil).DeleteProject), ctx, projectName, projectVersion)
+}
+
 // UploadBOM mocks base method.
 func (m *MockDependencyTrackClient) UploadBOM(ctx context.Context, projectName, projectVersion, parentName, parentVersion string, bom []byte) error {
 	m.ctrl.T.Helper()

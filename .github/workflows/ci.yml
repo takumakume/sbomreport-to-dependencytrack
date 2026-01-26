@@ -7,16 +7,21 @@ on:
   pull_request:
 
 env:
-  go-version: '1.22'
+  go-version: '1.25'
 
 jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-go@v3
+    - uses: actions/checkout@v6
+    - uses: actions/setup-go@v6
       with:
         go-version: ${{ env.go-version }}
     - run: make go-deps
+    - run: make mock
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.6
     - run: make test

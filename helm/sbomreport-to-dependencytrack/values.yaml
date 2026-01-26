@@ -11,6 +11,9 @@ config:
   # Dependency Track base URL
   baseUrl: "http://localhost:8081"
 
+  # Log Level for the application
+  logLevel: info
+
   # Depdendency Track parent project name
   parentProjectName: ""
 
@@ -25,6 +28,9 @@ config:
   
   # Dependency Track project tag template (comma separated)
   projectTags: ""
+
+  # Action on SBOM Deletion, might either be ignore,deactivate or delete
+  sbomDeleteAction: ignore
 
   # Dependency Track client timeout seconds
   dtrackClientTimeout:
