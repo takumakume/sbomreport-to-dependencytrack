@@ -150,6 +150,18 @@ config:
   
   # Dependency Track project tag template (comma separated)
   projectTags: ""
+
+extraEnv:
+  - name: HTTP_PROXY
+    value: http://proxy.example:3128
+  - name: HTTPS_PROXY
+    value: http://proxy.example:3128
+  - name: NO_PROXY
+    value: "localhost,127.0.0.1,.svc,.cluster.local"
+
+extraEnvFrom:
+  - secretRef:
+      name: sbomreport-to-dependencytrack-extra-env
 ```
 
 register trivy-operator webhook

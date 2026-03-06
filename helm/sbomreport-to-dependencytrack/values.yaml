@@ -56,6 +56,13 @@ deploymentLabels: {}
 podLabels: {}
 podAnnotations: {}
 
+# Extra environment variables to add to the main container.
+# Example: HTTP_PROXY / HTTPS_PROXY / NO_PROXY
+extraEnv: []
+
+# Extra envFrom sources (ConfigMap/Secret) to add to the main container.
+extraEnvFrom: []
+
 podSecurityContext: {}
   # fsGroup: 2000
 
