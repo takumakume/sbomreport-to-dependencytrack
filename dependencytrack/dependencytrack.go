@@ -18,7 +18,14 @@ type DependencyTrackClient interface {
 		parentVersion string,
 		bom []byte,
 	) error
-	AddTagsToProject(ctx context.Context, projectName, projectVersion string, tags []string) error
+	AddTagsToProject(
+		ctx context.Context,
+		projectName,
+		projectVersion string,
+		parentName string,
+		parentVersion string,
+		tags []string,
+	) error
 	DeactivateProject(ctx context.Context, projectName, projectVersion string) error
 	DeleteProject(ctx context.Context, projectName, projectVersion string) error
 }
