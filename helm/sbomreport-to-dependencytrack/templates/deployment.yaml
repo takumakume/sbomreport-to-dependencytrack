@@ -37,6 +37,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["sbomreport-to-dependencytrack"]
           args: ["server", "--port", "{{ .Values.service.port }}"]
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
             - name: DT_API_KEY
               valueFrom:
@@ -70,6 +74,9 @@ spec:
             {{- with .Values.config.sbomUploadCheckIntervalSec }}
             - name: DT_SBOM_UPLOAD_CHECK_INTERVAL_SEC
               value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:
             - name: http
