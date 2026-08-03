@@ -1,4 +1,4 @@
-FROM alpine:3.23.2
+FROM alpine:3.24.1
 RUN apk update && apk add --upgrade libcrypto3 libssl3
 RUN adduser -u 10000 -D -g '' sbomreport-to-dependencytrack sbomreport-to-dependencytrack
 
